@@ -50,6 +50,26 @@ Each demo is self-contained and can be viewed directly in the browser.
 
 ---
 
+## PN Junction Potential Distribution
+
+<iframe
+  src="./assets/anim/pn_potential.html"
+  width="100%"
+  height="520"
+  style="border:none;">
+</iframe>
+
+## MOSFET Cross-Section Potential Distribution (VG Sweep)
+
+<iframe
+  src="./assets/anim/mos_potential.html"
+  width="100%"
+  height="520"
+  style="border:none;">
+</iframe>
+
+---
+
 ## Notes
 
 - These demos are **experimental** and may change without notice.
