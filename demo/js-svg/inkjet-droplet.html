@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Inkjet Droplet Demo</title>
+<style>
+body {
+  margin:0;
+  background:#020617;
+  color:#e5e7eb;
+  font-family: monospace;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:20px;
+}
+h1 { font-size:16px; margin-bottom:8px; }
+svg { border:1px solid #334155; background:#020617; }
+.nozzle { fill:#64748b; }
+.drop { fill:#38bdf8; }
+.satellite { fill:#94a3b8; }
+</style>
+</head>
+
+<body>
+
+<h1>Inkjet Droplet Formation Demo</h1>
+
+<svg id="scene" width="400" height="500" viewBox="0 0 400 500">
+  <!-- ノズル -->
+  <rect class="nozzle" x="170" y="20" width="60" height="40"/>
+
+  <!-- 液柱 -->
+  <circle id="mainDrop" class="drop" cx="200" cy="80" r="16"/>
+  <circle id="satDrop" class="satellite" cx="200" cy="60" r="6" opacity="0"/>
+</svg>
+
+<script>
+const main = document.getElementById("mainDrop");
+const sat  = document.getElementById("satDrop");
+
+let t = 0;
+
+function step() {
+  t++;
+
+  // メイン液滴
+  let yMain = 80 + t * 2;
+  let rMain = 16;
+
+  // ネック形成
+  if (t > 20 && t < 35) {
+    rMain = 16 - (t - 20) * 0.3;
+  }
+
+  // サテライト生成
+  if (t === 32) {
+    sat.setAttribute("opacity", 1);
+    sat.setAttribute("cy", 80 + t * 2 - 20);
+  }
+
+  // サテライト追従
+  if (t > 32) {
+    sat.setAttribute("cy", 80 + t * 2 - 20);
+  }
+
+  main.setAttribute("cy", yMain);
+  main.setAttribute("r", rMain);
+
+  if (t < 160) requestAnimationFrame(step);
+}
+
+step();
+</script>
+
+</body>
+</html>
