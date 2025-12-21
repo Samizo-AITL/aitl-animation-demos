@@ -2,34 +2,31 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Fade In Demo</title>
+<title>Hologram Fade</title>
 <style>
-  body {
-    font-family: sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background: #f8f9fa;
-  }
-  .box {
-    width: 200px;
-    height: 120px;
-    background: #16a34a;
-    color: #fff;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-weight: bold;
-    opacity: 0;
-    animation: fadein 2s ease forwards;
-  }
-  @keyframes fadein {
-    to { opacity: 1; }
-  }
+body {
+  background:#020617;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+.box {
+  padding:40px 60px;
+  border:1px solid #38bdf8;
+  color:#38bdf8;
+  font-weight:bold;
+  letter-spacing:2px;
+  opacity:0;
+  animation:holo 1.8s ease forwards;
+}
+@keyframes holo {
+  0% { opacity:0; transform:translateY(10px) scale(0.95); }
+  100% { opacity:1; transform:none; box-shadow:0 0 20px #38bdf855; }
+}
 </style>
 </head>
 <body>
-  <div class="box">FSM Activated</div>
+<div class="box">FSM ACTIVATED</div>
 </body>
 </html>
