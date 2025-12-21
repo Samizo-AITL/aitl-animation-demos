@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Layer Stack Demo</title>
+<style>
+  body {
+    font-family: sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: #f1f5f9;
+  }
+  .stack {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .layer {
+    width: 220px;
+    padding: 14px;
+    color: #fff;
+    font-weight: bold;
+    text-align: center;
+    opacity: 0;
+    animation: appear 0.8s ease forwards;
+  }
+  .pid { background: #2563eb; animation-delay: 0.2s; }
+  .fsm { background: #16a34a; animation-delay: 0.8s; }
+  .llm { background: #9333ea; animation-delay: 1.4s; }
+
+  @keyframes appear {
+    from { transform: translateY(10px); opacity: 0; }
+    to   { transform: translateY(0);  opacity: 1; }
+  }
+</style>
+</head>
+<body>
+  <div class="stack">
+    <div class="layer pid">PID – Real-time Control</div>
+    <div class="layer fsm">FSM – Mode Supervision</div>
+    <div class="layer llm">LLM – Adaptive Re-design</div>
+  </div>
+</body>
+</html>
