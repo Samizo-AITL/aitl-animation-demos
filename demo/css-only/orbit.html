@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Orbit Demo</title>
+<style>
+  body { display:flex; justify-content:center; align-items:center; height:100vh; }
+  .orbit {
+    width:200px; height:200px;
+    border:1px dashed #999;
+    border-radius:50%;
+    position:relative;
+    animation: spin 10s linear infinite;
+  }
+  .node {
+    width:40px; height:40px;
+    background:#2563eb; color:#fff;
+    border-radius:50%;
+    text-align:center;
+    line-height:40px;
+    position:absolute;
+    top:50%; left:100%;
+    transform:translate(-50%,-50%);
+    font-size:12px;
+  }
+  @keyframes spin {
+    from { transform:rotate(0deg); }
+    to { transform:rotate(360deg); }
+  }
+</style>
+</head>
+<body>
+  <div class="orbit">
+    <div class="node">FSM</div>
+  </div>
+</body>
+</html>
