@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AITL Control Flow Demo</title>
+<style>
+body {
+  background:#020617;
+  color:#e5e7eb;
+  font-family: monospace;
+  margin:0;
+  padding:20px;
+}
+h1 { font-size:16px; margin-bottom:8px; }
+#state { margin-bottom:10px; }
+svg { background:#020617; border:1px solid #334155; }
+
+.pid { stroke:#38bdf8; fill:none; stroke-width:2; }
+.set { stroke:#64748b; stroke-dasharray:4 4; }
+.dist { stroke:#ef4444; stroke-width:2; }
+.text-ok { color:#38bdf8; }
+.text-warn { color:#facc15; }
+.text-err { color:#ef4444; }
+</style>
+</head>
+
+<body>
+
+<h1>AITL Control Flow Demo</h1>
+<div id="state" class="text-ok">PID: Tracking target</div>
+
+<svg id="chart" width="600" height="220" viewBox="0 0 600 220">
+  <path id="setpoint" class="set"/>
+  <path id="pid" class="pid"/>
+  <path id="disturb" class="dist"/>
+</svg>
+
+<script>
+const svg = document.getElementById("chart");
+const pidPath = document.getElementById("pid");
+const setPath = document.getElementById("setpoint");
+const distPath = document.getElementById("disturb");
+const stateText = document.getElementById("state");
+
+let t = 0;
+let Kp = 1.0;
+let disturbed = false;
+let llmAdjusted = false;
+
+function y(val) { return 180 - val * 80; }
+function x(t) { return 20 + t * 5; }
+
+function update() {
+  t += 1;
+
+  const set = 1.0;
+  let response = set * (1 - Math.exp(-Kp * t / 20));
+
+  // 外乱注入
+  if (t > 40 && t < 60) {
+    response -= 0.6;
+    disturbed = true;
+  }
+
+  // FSM判定
+  if (disturbed && !llmAdjusted) {
+    stateText.textContent = "FSM: Disturbance detected";
+    stateText.className = "text-warn";
+  }
+
+  // LLM介入
+  if (t === 70) {
+    Kp = 2.2;
+    llmAdjusted = true;
+    stateText.textContent = "LLM: PID gain re-tuned";
+    stateText.className = "text-err";
+  }
+
+  // 復帰
+  if (t > 90) {
+    stateText.textContent = "PID: Re-tracking target";
+    stateText.className = "text-ok";
+  }
+
+  // 描画
+  let dPid = pidPath.getAttribute("d") || "";
+  dPid += `${x(t)},${y(response)} `;
+  pidPath.setAttribute("d", "M " + dPid);
+
+  let dSet = setPath.getAttribute("d") || "";
+  dSet += `${x(t)},${y(set)} `;
+  setPath.setAttribute("d", "M " + dSet);
+
+  if (disturbed && t < 60) {
+    let dDist = distPath.getAttribute("d") || "";
+    dDist += `${x(t)},${y(response)} `;
+    distPath.setAttribute("d", "M " + dDist);
+  }
+
+  if (t < 110) requestAnimationFrame(update);
+}
+
+update();
+</script>
+
+</body>
+</html>
