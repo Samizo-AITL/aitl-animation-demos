@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Pulse Demo</title>
+<style>
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: #ffffff;
+  }
+  .pulse {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: #9333ea;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    animation: pulse 1.8s infinite;
+  }
+  @keyframes pulse {
+    0%   { transform: scale(1);   opacity: 0.9; }
+    50%  { transform: scale(1.15); opacity: 1; }
+    100% { transform: scale(1);   opacity: 0.9; }
+  }
+</style>
+</head>
+<body>
+  <div class="pulse">PID</div>
+</body>
+</html>
