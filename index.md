@@ -38,6 +38,12 @@ Each demo is self-contained and can be viewed directly in the browser.
   Stacked animation visualizing PID–FSM–LLM layered architecture.  
   👉 [Open demo](./demo/css-only/layer-stack.html)
 
+## JS + SVG Demos
+
+- **AITL Control Flow Demo**  
+  PID response → disturbance → FSM detection → LLM gain re-tuning → target re-tracking.  
+  👉 [Open demo](./demo/js-svg/aitl-control-flow.html)
+
 ---
 
 ## Notes
