@@ -44,6 +44,10 @@ Each demo is self-contained and can be viewed directly in the browser.
   PID response → disturbance → FSM detection → LLM gain re-tuning → target re-tracking.  
   👉 [Open demo](./demo/js-svg/aitl-control-flow.html)
 
+- **Inkjet Droplet Formation Demo**  
+  Inkjet droplet generation, flight, and satellite formation visualization.  
+  👉 [Open demo](./demo/js-svg/inkjet-droplet.html)
+
 ---
 
 ## Notes
