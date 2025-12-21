@@ -52,6 +52,9 @@ Each demo is self-contained and can be viewed directly in the browser.
 
 ## PN Junction Potential Distribution
 
+**Potential profile φ(x) under applied bias voltage V.  
+Depletion region widens under reverse bias and shrinks under forward bias.**
+
 <iframe
   src="./assets/anim/pn_potential.html"
   width="100%"
@@ -60,6 +63,9 @@ Each demo is self-contained and can be viewed directly in the browser.
 </iframe>
 
 ## MOSFET Cross-Section Potential Distribution (VG Sweep)
+
+**Electrostatic potential φ(x,y) in a MOSFET cross-section.  
+Increasing gate voltage VG bends the surface potential and forms the channel.**
 
 <iframe
   src="./assets/anim/mos_potential.html"
