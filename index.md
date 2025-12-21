@@ -26,6 +26,18 @@ Each demo is self-contained and can be viewed directly in the browser.
   Conceptual orbit-style animation using pure CSS.  
   👉 [Open demo](./demo/css-only/orbit.html)
 
+- **Fade-in Demo**  
+  Simple fade-in animation for step-by-step concept introduction.  
+  👉 [Open demo](./demo/css-only/fade-in.html)
+
+- **Pulse Demo (Attention highlight)**  
+  Pulse animation to subtly emphasize important elements.  
+  👉 [Open demo](./demo/css-only/pulse.html)
+
+- **Layer Stack Demo (AITL layers)**  
+  Stacked animation visualizing PID–FSM–LLM layered architecture.  
+  👉 [Open demo](./demo/css-only/layer-stack.html)
+
 ---
 
 ## Notes
