@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Inkjet Droplet Demo</title>
+<title>Inkjet Droplet Formation Demo</title>
 <style>
 body {
   margin:0;
@@ -14,9 +14,20 @@ body {
   align-items:center;
   padding:20px;
 }
-h1 { font-size:16px; margin-bottom:8px; }
-svg { border:1px solid #334155; background:#020617; }
+
+h1 {
+  font-size:16px;
+  margin-bottom:10px;
+}
+
+svg {
+  background:#020617;
+  border:1px solid #334155;
+}
+
+/* 見た目 */
 .nozzle { fill:#64748b; }
+.jet { fill:#38bdf8; }
 .drop { fill:#38bdf8; }
 .satellite { fill:#94a3b8; }
 </style>
@@ -26,48 +37,69 @@ svg { border:1px solid #334155; background:#020617; }
 
 <h1>Inkjet Droplet Formation Demo</h1>
 
-<svg id="scene" width="400" height="500" viewBox="0 0 400 500">
+<svg width="400" height="520" viewBox="0 0 400 520">
   <!-- ノズル -->
-  <rect class="nozzle" x="170" y="20" width="60" height="40"/>
+  <rect class="nozzle" x="160" y="20" width="80" height="40"/>
 
   <!-- 液柱 -->
-  <circle id="mainDrop" class="drop" cx="200" cy="80" r="16"/>
-  <circle id="satDrop" class="satellite" cx="200" cy="60" r="6" opacity="0"/>
+  <rect id="jet" class="jet" x="188" y="60" width="24" height="0"/>
+
+  <!-- メイン液滴 -->
+  <ellipse id="drop" class="drop" cx="200" cy="100" rx="16" ry="16" opacity="0"/>
+
+  <!-- サテライト -->
+  <circle id="sat" class="satellite" cx="200" cy="90" r="5" opacity="0"/>
 </svg>
 
 <script>
-const main = document.getElementById("mainDrop");
-const sat  = document.getElementById("satDrop");
+const jet = document.getElementById("jet");
+const drop = document.getElementById("drop");
+const sat  = document.getElementById("sat");
 
 let t = 0;
+
+function reset() {
+  t = 0;
+  jet.setAttribute("height", 0);
+  drop.setAttribute("opacity", 0);
+  sat.setAttribute("opacity", 0);
+}
 
 function step() {
   t++;
 
-  // メイン液滴
-  let yMain = 80 + t * 2;
-  let rMain = 16;
-
-  // ネック形成
-  if (t > 20 && t < 35) {
-    rMain = 16 - (t - 20) * 0.3;
+  /* フェーズ1：液柱伸長 */
+  if (t < 25) {
+    jet.setAttribute("height", t * 3);
   }
 
-  // サテライト生成
-  if (t === 32) {
+  /* フェーズ2：ネック形成 */
+  if (t >= 25 && t < 40) {
+    jet.setAttribute("height", 75 + (t - 25) * 1.5);
+    drop.setAttribute("opacity", 1);
+    drop.setAttribute("cy", 60 + jet.getAttribute("height") * 1);
+    drop.setAttribute("ry", 14 - (t - 25) * 0.2);
+  }
+
+  /* フェーズ3：分離 */
+  if (t === 40) {
+    jet.setAttribute("height", 60);
     sat.setAttribute("opacity", 1);
-    sat.setAttribute("cy", 80 + t * 2 - 20);
   }
 
-  // サテライト追従
-  if (t > 32) {
-    sat.setAttribute("cy", 80 + t * 2 - 20);
+  /* フェーズ4：飛翔 */
+  if (t > 40 && t < 90) {
+    const y = 120 + (t - 40) * 2.5;
+    drop.setAttribute("cy", y);
+    sat.setAttribute("cy", y - 18);
   }
 
-  main.setAttribute("cy", yMain);
-  main.setAttribute("r", rMain);
+  /* ループ */
+  if (t > 110) {
+    reset();
+  }
 
-  if (t < 160) requestAnimationFrame(step);
+  requestAnimationFrame(step);
 }
 
 step();
