@@ -124,8 +124,6 @@ visualization**, not compact model accuracy.
 
 ---
 
----
-
 ## PID Control: Visual Intuition by Step Response
 
 This section introduces **PID control** using minimal step-response animations.
@@ -201,7 +199,7 @@ $$
 
 It acts as a **dynamic brake**, suppressing overshoot and oscillation.
 
-![PID damping effect](assets/images/pid_damping.gif)
+![PID damping effect](assets/images/pid_step.gif)
 
 Comparison:
 - PI: reaches the target but oscillates
