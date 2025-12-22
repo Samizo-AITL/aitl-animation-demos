@@ -74,9 +74,10 @@ Increasing gate voltage VG bends the surface potential and forms the channel.**
   style="border:none;">
 </iframe>
 
-### NMOS Under-Gate Potential (Vg = 1.5 V)
+## NMOS Under-Gate Potential (Vg Sweep)
 
 Electrostatic potential distribution φ(x, y) under the gate region.
+Representative frame shown (Vg = 0.3 V).
 Time evolution over 10 cycles (slow sweep).
 
 ![NMOS under-gate potential animation](assets/images/nmos_under_gate_potential_slow_10cycles.gif)
