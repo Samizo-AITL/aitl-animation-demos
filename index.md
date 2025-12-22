@@ -80,7 +80,7 @@ Electrostatic potential distribution φ(x, y) under the gate region.
 Representative frame shown (Vg = 0.3 V).
 Time evolution over 10 cycles (slow sweep).
 
-![NMOS under-gate potential animation](assets/images/nmos_under_gate_potential_slow_10cycles.gif)
+![NMOS under-gate potential animation](assets/images/nmos_under_gate_potential_slow.gif)
 
 ---
 
