@@ -8,7 +8,6 @@ title: AITL Animation Demos　
 This page provides quick access to **experimental animation demos** related to AITL concepts.  
 Each demo is self-contained and can be viewed directly in the browser.
 
----
 
 ## 🔗 Links
 
