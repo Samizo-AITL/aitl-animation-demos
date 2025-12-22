@@ -124,6 +124,114 @@ visualization**, not compact model accuracy.
 
 ---
 
+---
+
+## PID Control: Visual Intuition by Step Response
+
+This section introduces **PID control** using minimal step-response animations.
+The goal is not mathematical completeness, but **instant physical intuition**.
+
+We consider a simple control loop where:
+
+- **Control input**: voltage $V$
+- **System output**: current $I$
+- **Reference**: $I_{\mathrm{ref}}$
+
+The controller computes the control voltage $V(t)$ from the current error:
+
+$$
+e(t) = I_{\mathrm{ref}} - I(t)
+$$
+
+---
+
+## P Control — Proportional Action
+
+**P control reacts only to the instantaneous error.**
+
+$$
+V(t) = K_p \, e(t)
+$$
+
+- Large error → large control effort  
+- Small error → weak control effort  
+
+As shown below:
+- Low $K_p$: slow response
+- High $K_p$: fast but overshoots and oscillates
+- **Steady-state error always remains**
+
+![P control step response](assets/images/p_step_only.gif)
+
+**Key intuition**  
+> P control is fast, but it stops acting once the error becomes small.  
+> Precision is impossible with P alone.
+
+---
+
+## PI Control — Eliminating Steady-State Error
+
+**I control accumulates error over time.**
+
+$$
+V(t) = K_p e(t) + K_i \int e(t)\,dt
+$$
+
+To highlight its role, a disturbance is applied during operation.
+
+![PI control with disturbance](assets/images/pi_step_disturbance.gif)
+
+Observation:
+- P control leaves a permanent offset after disturbance
+- PI control **slowly but surely restores the target current**
+
+**Key intuition**  
+> I control provides persistence.  
+> As long as error exists, it keeps pushing.
+
+---
+
+## PID Control — Damping Oscillation
+
+**D control reacts to the rate of change of the output.**
+
+$$
+V(t) = K_p e(t) + K_i \int e(t)\,dt - K_d \frac{dI}{dt}
+$$
+
+It acts as a **dynamic brake**, suppressing overshoot and oscillation.
+
+![PID damping effect](assets/images/pid_damping.gif)
+
+Comparison:
+- PI: reaches the target but oscillates
+- PID: reaches the target **smoothly and quickly**
+
+**Key intuition**  
+> D control anticipates motion and applies braking force.
+
+---
+
+## Summary: Physical Meaning of PID
+
+| Term | Looks at | Physical role |
+|----|----|----|
+| **P** | Error | Immediate force |
+| **I** | Accumulated error | Bias removal |
+| **D** | Rate of change | Damping / braking |
+
+**PID control mirrors human motion control**:
+- Push toward the target (P),
+- Keep pushing if still off (I),
+- Brake before overshooting (D).
+
+---
+
+These animations are designed for **architectural understanding**
+and control intuition, rather than parameter tuning or model accuracy.
+
+---
+
 ## Notes
 
 - These demos are **experimental** and may change without notice.
