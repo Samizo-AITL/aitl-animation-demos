@@ -50,35 +50,25 @@ Each demo is self-contained and can be viewed directly in the browser.
 
 ---
 
-## PN Junction Potential Distribution
-
-**Potential profile φ(x) under applied bias voltage V.  
-Depletion region widens under reverse bias and shrinks under forward bias.**
-
-<iframe
-  src="./assets/anim/pn_potential.html"
-  width="100%"
-  height="520"
-  style="border:none;">
-</iframe>
-
-## MOSFET Cross-Section Potential Distribution (VG Sweep)
-
-**Electrostatic potential φ(x,y) in a MOSFET cross-section.  
-Increasing gate voltage VG bends the surface potential and forms the channel.**
-
-<iframe
-  src="./assets/anim/mos_potential.html"
-  width="100%"
-  height="520"
-  style="border:none;">
-</iframe>
-
 ## NMOS Under-Gate Potential (Vg Sweep)
 
-Electrostatic potential distribution φ(x, y) under the gate region.
+Electrostatic potential distribution φ(x, y) in the NMOS channel region,
+calculated under a fixed source–drain bias (Vs = 0 V, Vd = 3.3 V).
+
+The gate voltage Vg is swept continuously from 0 to 3.3 V and back,
+modulating the channel potential profile while maintaining the
+source–drain boundary conditions.
+
+The potential φ includes:
+- a linear source–drain component along the channel length (L-direction), and
+- a gate-induced electrostatic modulation representing the formation
+  and strengthening of the inversion layer.
+
+The z-axis is fixed to cover the theoretical maximum potential
+(φ ≈ Vd + α·Vg), ensuring consistent visualization without clipping.
+
 Representative frame shown (Vg = 0.3 V).
-Time evolution over 10 cycles (slow sweep).
+Time evolution shown over multiple slow sweep cycles.
 
 ![NMOS under-gate potential animation](assets/images/nmos_under_gate_potential_slow.gif)
 
