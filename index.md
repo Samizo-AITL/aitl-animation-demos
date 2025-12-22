@@ -74,6 +74,56 @@ Time evolution shown over multiple slow sweep cycles.
 
 ---
 
+## NMOS Id Surface (Vg–Vd–Id Characteristics)
+
+This animation visualizes the **NMOS drain current surface**
+$ I_d(V_g, V_d) $ under a **3.3 V CMOS operating range**.
+
+- **x-axis**: Drain voltage $V_d$ (0 → 3.3 V)  
+- **y-axis**: Gate voltage $V_g$ (0 → 3.3 V)  
+- **z-axis**: Drain current $I_d$  
+
+The **origin $(V_d, V_g) = (0, 0)$ is intentionally placed at the front corner**
+to preserve physical intuition:
+- zero gate bias and zero drain bias correspond to zero current,
+- increasing $V_g$ enhances channel inversion,
+- increasing $V_d$ transitions the device from the linear region
+  to saturation.
+
+### Modeling assumptions
+
+The surface is generated using a simplified long-channel NMOS model:
+
+- Threshold voltage: $V_\mathrm{th}$
+- Square-law behavior:
+  - Linear region:  
+    $$
+    I_d = K \left[(V_g - V_\mathrm{th}) V_d - \frac{1}{2} V_d^2 \right]
+    $$
+  - Saturation region:  
+    $$
+    I_d = \frac{1}{2} K (V_g - V_\mathrm{th})^2
+    $$
+
+Channel-length modulation and short-channel effects are intentionally
+omitted to keep the geometric structure of the surface clear.
+
+### Animation behavior
+
+- The surface is **periodically scaled (0 → max → 0)** to emphasize
+  the topology of the $I_d$ surface without changing the bias axes.
+- Viewpoint and axis directions are fixed so that:
+  - $(V_d, V_g) = (0,0)$ remains at the front,
+  - higher voltages extend toward the back,
+  - comparison with electrostatic potential animations is intuitive.
+
+This representation is intended for **educational and architectural
+visualization**, not compact model accuracy.
+
+![NMOS Id surface animation](assets/images/nmos_id_surface.gif)
+
+---
+
 ## Notes
 
 - These demos are **experimental** and may change without notice.
