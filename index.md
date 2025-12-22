@@ -1,6 +1,6 @@
 ---
 layout: default
-title: AITL Animation Demos
+title: AITL Animation Demos　
 ---
 
 # AITL Animation Demos
