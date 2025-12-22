@@ -1,8 +1,3 @@
----
-layout: default
-title: AITL Animation Demos
----
-
 # AITL Animation Demos
 
 This page provides quick access to **experimental animation demos** related to AITL concepts.  
