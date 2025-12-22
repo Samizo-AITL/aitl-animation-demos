@@ -6,6 +6,7 @@ url: "https://samizo-aitl.github.io"
 baseurl: "/aitl-animation-demos"
 
 theme: null   # ← 最重要（Minima を殺す）
+remote_theme: null
 
 markdown: kramdown
 kramdown:
