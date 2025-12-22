@@ -199,7 +199,7 @@ $$
 
 It acts as a **dynamic brake**, suppressing overshoot and oscillation.
 
-![PID damping effect](assets/images/pid_step.gif)
+![PID damping effect](assets/images/pid_damping.gif)
 
 Comparison:
 - PI: reaches the target but oscillates
