@@ -100,27 +100,66 @@ for the MOS and NMOS visualizations that follow.
 
 ---
 
-## NMOS Under-Gate Potential (Vg Sweep)
+## MOS Surface Potential (Weak Inversion → Threshold → Strong Inversion)
 
-Electrostatic potential distribution φ(x, y) in the NMOS channel region,
-calculated under a fixed source–drain bias (Vs = 0 V, Vd = 3.3 V).
+This animation visualizes the **MOS surface potential**
+\(\phi(L, V_g)\) as a continuous function of **channel position** and
+**gate voltage**, explicitly connecting:
 
-The gate voltage Vg is swept continuously from 0 to 3.3 V and back,
-modulating the channel potential profile while maintaining the
-source–drain boundary conditions.
+**weak inversion → threshold → strong inversion**
 
-The potential φ includes:
-- a linear source–drain component along the channel length (L-direction), and
-- a gate-induced electrostatic modulation representing the formation
-  and strengthening of the inversion layer.
+### Axes definition
 
-The z-axis is fixed to cover the theoretical maximum potential
-(φ ≈ Vd + α·Vg), ensuring consistent visualization without clipping.
+- **x-axis**: Channel position \(L\)  
+  *(source → drain)*  
+- **y-axis**: Gate voltage \(V_g\)  
+- **z-axis**: Electrostatic potential \(\phi\)
 
-Representative frame shown (Vg = 0.3 V).
-Time evolution shown over multiple slow sweep cycles.
+The potential surface is constructed using a **minimal educational model**
+to emphasize physical intuition rather than compact-model accuracy.
 
-![NMOS under-gate potential animation](assets/images/nmos_under_gate_potential_slow.gif)
+### Physical meaning
+
+The total potential is decomposed as:
+
+- a **linear source–drain component** along the channel, and  
+- a **gate-controlled surface modulation** that decays away from the source.
+
+The **highlighted edge at \(L = 0\)** represents the  
+**surface potential \(\phi_s(V_g)\)**.
+
+### Threshold definition
+
+The threshold condition is defined geometrically as:
+
+\[
+\phi_s = 2\phi_F
+\]
+
+- **Weak inversion**: \(\phi_s < 2\phi_F\)  
+- **Threshold (V\_th)**: \(\phi_s = 2\phi_F\)  
+- **Strong inversion**: \(\phi_s \gtrsim 2\phi_F\)
+
+This makes the threshold voltage **not an abstract parameter**, but a
+**visible point on the surface**, determined by the internal electrostatic
+state.
+
+### Why this representation matters
+
+Traditional MOS explanations separate:
+- surface potential,
+- threshold voltage,
+- and drain current equations.
+
+This animation unifies them by showing that:
+
+> **Threshold is simply the gate voltage at which the surface potential
+> reaches the inversion condition.**
+
+The transition from weak to strong inversion is therefore a **continuous
+electrostatic process**, not a sudden event.
+
+![MOS surface potential with threshold regions](assets/images/mos_surface_potential_vth_regions.gif)
 
 ---
 
