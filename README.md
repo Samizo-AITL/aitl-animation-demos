@@ -121,7 +121,7 @@ The total potential is decomposed as:
 - a **gate-controlled surface modulation** that decays away from the source.
 
 The **highlighted edge at  $(L = 0$)** represents the  
-**surface potential  $(\phi_s(V_g)$)**.
+**surface potential  $(\phi_s(V_g)$ ) **.
 
 ### Threshold definition
 
