@@ -103,17 +103,17 @@ for the MOS and NMOS visualizations that follow.
 ## MOS Surface Potential (Weak Inversion → Threshold → Strong Inversion)
 
 This animation visualizes the **MOS surface potential**
-\(\phi(L, V_g)\) as a continuous function of **channel position** and
+ $(\phi(L, V_g)$)  as a continuous function of **channel position** and
 **gate voltage**, explicitly connecting:
 
 **weak inversion → threshold → strong inversion**
 
 ### Axes definition
 
-- **x-axis**: Channel position \(L\)  
+- **x-axis**: Channel position  $(L$ )  
   *(source → drain)*  
-- **y-axis**: Gate voltage \(V_g\)  
-- **z-axis**: Electrostatic potential \(\phi\)
+- **y-axis**: Gate voltage  $(V_g$ )  
+- **z-axis**: Electrostatic potential  $(\phi$ )
 
 The potential surface is constructed using a **minimal educational model**
 to emphasize physical intuition rather than compact-model accuracy.
@@ -125,20 +125,20 @@ The total potential is decomposed as:
 - a **linear source–drain component** along the channel, and  
 - a **gate-controlled surface modulation** that decays away from the source.
 
-The **highlighted edge at \(L = 0\)** represents the  
-**surface potential \(\phi_s(V_g)\)**.
+The **highlighted edge at  $(L = 0$) ** represents the  
+**surface potential  $(\phi_s(V_g)$ ) **.
 
 ### Threshold definition
 
 The threshold condition is defined geometrically as:
 
-\[
+$$
 \phi_s = 2\phi_F
-\]
+$$
 
-- **Weak inversion**: \(\phi_s < 2\phi_F\)  
-- **Threshold (V\_th)**: \(\phi_s = 2\phi_F\)  
-- **Strong inversion**: \(\phi_s \gtrsim 2\phi_F\)
+- **Weak inversion**:  $(\phi_s < 2\phi_F$ )  
+- **Threshold (V\_th)**:  $(\phi_s = 2\phi_F$ )  
+- **Strong inversion**:  $(\phi_s \gtrsim 2\phi_F$ )
 
 This makes the threshold voltage **not an abstract parameter**, but a
 **visible point on the surface**, determined by the internal electrostatic
@@ -185,11 +185,14 @@ The surface is generated using a simplified long-channel NMOS model:
 
 - Threshold voltage:  $V_\mathrm{th}$
 - Square-law behavior:
-  - Linear region:  
+  - Linear region:
+
 $$
 I_d = K \left[(V_g - V_\mathrm{th}) V_d - \frac{1}{2} V_d^2 \right]
 $$
-  - Saturation region:  
+
+  - Saturation region:
+
 $$
 I_d = \frac{1}{2} K (V_g - V_\mathrm{th})^2
 $$
