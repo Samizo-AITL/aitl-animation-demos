@@ -3,102 +3,89 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Inkjet Meniscus Control (Pro) - Left→Right Gravity</title>
+<title>Inkjet Meniscus Control (Demo) - Left→Right</title>
 <style>
-  :root{
-    --bg:#020617;
-    --fg:#e5e7eb;
-    --line:#334155;
-    --noz:#64748b;
-  }
+  :root{ --bg:#020617; --fg:#e5e7eb; --line:#334155; --noz:#64748b; }
   body{
-    margin:0;
-    background:var(--bg);
-    color:var(--fg);
+    margin:0; background:var(--bg); color:var(--fg);
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:10px;
-    padding:16px;
+    display:flex; flex-direction:column; align-items:center; gap:10px; padding:16px;
   }
-  .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
-  h1{font-size:14px; margin:0}
+  h1{margin:0; font-size:14px; font-weight:600; opacity:.95}
   .panel{
+    width:min(980px, 96vw);
     display:flex; gap:10px; align-items:center; flex-wrap:wrap;
-    border:1px solid var(--line);
-    padding:10px;
-    border-radius:8px;
-    max-width:980px;
+    border:1px solid var(--line); border-radius:10px; padding:10px;
   }
   label{display:flex; gap:8px; align-items:center; font-size:12px}
   input[type="range"]{width:180px}
   button{
-    background:transparent;
-    color:var(--fg);
-    border:1px solid var(--line);
-    border-radius:8px;
-    padding:6px 10px;
-    cursor:pointer;
+    background:transparent; color:var(--fg);
+    border:1px solid var(--line); border-radius:10px;
+    padding:6px 10px; cursor:pointer;
   }
   button:hover{border-color:#64748b}
   svg{
+    width:min(980px, 96vw); height:auto;
     background:var(--bg);
     border:1px solid var(--line);
-    border-radius:10px;
+    border-radius:14px;
+    display:block;
   }
-  .hint{font-size:12px; opacity:.85; max-width:980px; line-height:1.5}
+  .hint{width:min(980px,96vw); font-size:12px; opacity:.85; line-height:1.5}
 </style>
 </head>
 <body>
-  <div class="row">
-    <h1>Inkjet Meniscus Control (Pro) — Left→Right flight, gravity = +X</h1>
-  </div>
+  <h1>Inkjet Meniscus Control (Demo) — flight:+X / gravity:+X / “必ず当たる”モード</h1>
 
   <div class="panel">
     <label>g(+X)
-      <input id="g" type="range" min="0" max="0.20" step="0.005" value="0.06">
+      <input id="g" type="range" min="0" max="0.18" step="0.005" value="0.07">
       <span id="gV"></span>
     </label>
     <label>air drag
-      <input id="drag" type="range" min="0" max="0.08" step="0.002" value="0.03">
+      <input id="drag" type="range" min="0" max="0.06" step="0.002" value="0.012">
       <span id="dragV"></span>
     </label>
     <label>drive gain
-      <input id="gain" type="range" min="0.4" max="2.0" step="0.05" value="1.2">
+      <input id="gain" type="range" min="0.4" max="2.2" step="0.05" value="1.35">
       <span id="gainV"></span>
     </label>
-    <label>pinch threshold
-      <input id="pinch" type="range" min="1.5" max="6.0" step="0.1" value="3.2">
-      <span id="pinchV"></span>
-    </label>
-    <label>satellite prob
-      <input id="satp" type="range" min="0" max="1" step="0.05" value="0.75">
-      <span id="satpV"></span>
+    <label>cycle
+      <input id="cycle" type="range" min="180" max="420" step="10" value="260">
+      <span id="cycleV"></span>
     </label>
     <button id="resetBtn">reset</button>
     <button id="pauseBtn">pause</button>
   </div>
 
-  <svg id="svg" width="980" height="420" viewBox="0 0 980 420" aria-label="inkjet sim">
+  <div class="hint">
+    ・デモ優先：空気抵抗は軽め、かつ <b>substrate に近づくと加速補助</b>（安全弁）で必ず着弾します。<br>
+    ・「drive gain」を上げると押し波が強くなり、液柱・初速が増えてそれっぽく見えます。
+  </div>
+
+  <svg id="svg" viewBox="0 0 980 420" aria-label="inkjet demo">
     <defs>
-      <!-- ink body -->
-      <radialGradient id="inkGrad" cx="35%" cy="30%" r="80%">
+      <radialGradient id="inkGrad" cx="35%" cy="30%" r="85%">
         <stop offset="0%" stop-color="#bae6fd"/>
         <stop offset="55%" stop-color="#38bdf8"/>
         <stop offset="100%" stop-color="#0284c7"/>
       </radialGradient>
 
-      <!-- glow -->
       <filter id="glow">
-        <feGaussianBlur stdDeviation="2.4" result="b"/>
+        <feGaussianBlur stdDeviation="2.3" result="b"/>
         <feMerge>
           <feMergeNode in="b"/>
           <feMergeNode in="SourceGraphic"/>
         </feMerge>
       </filter>
 
-      <!-- faint grid -->
+      <linearGradient id="metal" x1="0" x2="1">
+        <stop offset="0" stop-color="#6b7280"/>
+        <stop offset="0.5" stop-color="#94a3b8"/>
+        <stop offset="1" stop-color="#64748b"/>
+      </linearGradient>
+
       <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
         <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#0b1220" stroke-width="1"/>
       </pattern>
@@ -106,64 +93,62 @@
 
     <rect x="0" y="0" width="980" height="420" fill="url(#grid)"/>
 
-    <!-- substrate (right side) -->
-    <rect id="substrate" x="900" y="40" width="40" height="340" rx="8" fill="#0b1220" stroke="#1f2937" />
-    <text x="920" y="30" text-anchor="middle" font-size="12" fill="#94a3b8">substrate</text>
+    <!-- substrate -->
+    <g id="substrateG">
+      <rect id="substrate" x="740" y="40" width="48" height="340" rx="10" fill="#0b1220" stroke="#1f2937" />
+      <text x="764" y="28" text-anchor="middle" font-size="12" fill="#94a3b8">substrate</text>
+    </g>
 
-    <!-- nozzle block (left) -->
-    <rect x="40" y="150" width="70" height="120" rx="8" fill="var(--noz)" opacity="0.95"/>
-    <!-- nozzle orifice -->
-    <rect x="110" y="205" width="10" height="10" rx="2" fill="#475569"/>
+    <!-- nozzle block -->
+    <g id="nozzleG">
+      <rect x="40" y="150" width="80" height="120" rx="10" fill="url(#metal)" opacity="0.98"/>
+      <rect x="120" y="205" width="12" height="10" rx="2" fill="#475569"/>
+      <rect x="116" y="198" width="8" height="24" rx="3" fill="#1f2937" opacity="0.55"/>
+    </g>
 
-    <!-- meniscus (dynamic) -->
+    <!-- meniscus -->
     <path id="meniscus" fill="url(#inkGrad)" filter="url(#glow)" d=""/>
 
-    <!-- jet column (dynamic) -->
+    <!-- jet -->
     <path id="jet" fill="url(#inkGrad)" filter="url(#glow)" d=""/>
 
-    <!-- droplets group -->
+    <!-- droplets -->
     <g id="drops"></g>
 
-    <!-- impact splat -->
-    <g id="splat"></g>
+    <!-- splats -->
+    <g id="splats"></g>
 
-    <!-- UI vectors -->
-    <text x="140" y="28" font-size="12" fill="#94a3b8">flight: +X / gravity: +X</text>
+    <text x="150" y="28" font-size="12" fill="#94a3b8">flight:+X / gravity:+X</text>
   </svg>
 
 <script>
 (() => {
   // =========================
-  // Parameters (tune here)
+  // Params (demo-tuned)
   // =========================
   const P = {
-    // geometry
-    nozzleX: 120,          // orifice x (start)
-    nozzleY: 210,          // orifice y (center)
-    meniscusH: 22,         // meniscus half-height
-    // jet
-    neck0: 14,             // initial half-width of jet
-    neckMin: 2.2,
-    jetGlow: true,
-    // physics-ish
-    g: 0.06,               // gravity along +X (user asked)
-    drag: 0.03,            // linear air drag: dv/dt = g - drag*v
-    gain: 1.2,             // drive gain (meniscus acceleration)
-    menDamp: 0.90,         // meniscus velocity damping
-    menMass: 0.18,         // how strongly drive moves meniscus
-    // pinch & breakup
-    pinchThreshold: 3.2,   // when neck < threshold => pinch event
-    pinchMinTime: 42,      // avoid early pinch
+    nozzleX: 132, nozzleY: 210,
+    menH: 22,
+    neck0: 14, neckMin: 2.2,
+
+    // motion
+    g: 0.07,         // +X gravity
+    drag: 0.012,     // light drag
+    gain: 1.35,      // drive gain
+
+    // visuals / timing
+    cycle: 260,      // frames until reset
+    substrateX: 740, // closer for demo
+    impactEps: 3,
+
+    // "必ず当たる" safety assist
+    assistZone: 180,    // start assist when within this distance
+    assistMinV: 3.6,    // ensure at least this vx near substrate
+    assistA: 0.06,      // extra accel (demo-only)
+
     // satellites
-    satProb: 0.75,
-    // rendering timing
-    fpsScale: 1.0,
-    resetAt: 290,
-    // substrate
-    substrateX: 900,
-    impactEps: 3.0,
-    // coalescence
-    mergeDist: 10.0,       // if distance < this and trailing faster => merge
+    satProb: 0.85,
+    mergeDist: 10.0,
   };
 
   // =========================
@@ -172,76 +157,72 @@
   const meniscus = document.getElementById("meniscus");
   const jet = document.getElementById("jet");
   const dropsG = document.getElementById("drops");
-  const splatG = document.getElementById("splat");
+  const splatsG = document.getElementById("splats");
+  const substrateRect = document.getElementById("substrate");
 
-  // sliders
   const $ = (id)=>document.getElementById(id);
-  const gS = $("g"), dragS = $("drag"), gainS = $("gain"), pinchS = $("pinch"), satpS = $("satp");
-  const gV = $("gV"), dragV = $("dragV"), gainV = $("gainV"), pinchV = $("pinchV"), satpV = $("satpV");
-  const resetBtn = $("resetBtn"), pauseBtn = $("pauseBtn");
+  const gS=$("g"), dragS=$("drag"), gainS=$("gain"), cycleS=$("cycle");
+  const gV=$("gV"), dragV=$("dragV"), gainV=$("gainV"), cycleV=$("cycleV");
+  const resetBtn=$("resetBtn"), pauseBtn=$("pauseBtn");
 
-  function bindSlider(sl, out, key){
-    const upd = () => { P[key] = Number(sl.value); out.textContent = Number(sl.value).toFixed(3); };
-    sl.addEventListener("input", upd);
-    upd();
+  function bind(sl, out, key, fmt=3){
+    const upd=()=>{ P[key]=Number(sl.value); out.textContent=Number(sl.value).toFixed(fmt); };
+    sl.addEventListener("input", upd); upd();
   }
-  bindSlider(gS, gV, "g");
-  bindSlider(dragS, dragV, "drag");
-  bindSlider(gainS, gainV, "gain");
-  bindSlider(pinchS, pinchV, "pinchThreshold");
-  bindSlider(satpS, satpV, "satProb");
+  bind(gS, gV, "g", 3);
+  bind(dragS, dragV, "drag", 3);
+  bind(gainS, gainV, "gain", 3);
+  bind(cycleS, cycleV, "cycle", 0);
+
+  // keep substrate in sync if you change later
+  function syncSubstrate(){
+    substrateRect.setAttribute("x", P.substrateX);
+  }
+  syncSubstrate();
 
   // =========================
   // Helpers
   // =========================
-  const clamp = (v,a,b)=>Math.max(a, Math.min(b,v));
-  const lerp = (a,b,t)=>a+(b-a)*t;
-
-  // stable pseudo-rand (deterministic-ish)
-  let seed = 1234567;
-  function rand(){
-    seed = (seed * 1664525 + 1013904223) >>> 0;
-    return seed / 4294967296;
-  }
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  let seed=1234567;
+  const rand=()=>((seed=(seed*1664525+1013904223)>>>0) / 4294967296);
 
   function meniscusPath(x, amp){
-    // amp: bulge amount in +X (convex if +, concave if -)
-    const h = P.meniscusH;
-    const y0 = P.nozzleY - h;
-    const y1 = P.nozzleY + h;
-    const x0 = x;
-    // Slight thickness so it looks like a surface
+    const h=P.menH;
+    const y0=P.nozzleY-h, y1=P.nozzleY+h;
+    // surface thickness for “liquid edge”
     return `
-      M ${x0} ${y0}
-      Q ${x0 + amp} ${P.nozzleY} ${x0} ${y1}
-      L ${x0 + 2} ${y1}
-      Q ${x0 + amp + 2} ${P.nozzleY} ${x0 + 2} ${y0}
+      M ${x} ${y0}
+      Q ${x+amp} ${P.nozzleY} ${x} ${y1}
+      L ${x+2} ${y1}
+      Q ${x+amp+2} ${P.nozzleY} ${x+2} ${y0}
       Z
     `;
   }
 
-  function jetPathFromMeniscus(x0, len, neck){
-    // horizontal jet: x increases; neck is half-width in Y
-    const yT = P.nozzleY - neck;
-    const yB = P.nozzleY + neck;
-    const x1 = x0 + len;
+  function jetPath(x0, len, neck){
+    const x1=x0+len;
+    const yT=P.nozzleY-neck, yB=P.nozzleY+neck;
 
-    // a little curvature and taper
-    const c = clamp(len, 0, 220);
-    const k1 = lerp(22, 55, c/220);
-    const k2 = lerp(16, 45, c/220);
+    // mild curvature that increases with length
+    const k1 = clamp(22 + len*0.08, 22, 60);
+    const k2 = clamp(18 + len*0.06, 18, 55);
 
     return `
       M ${x0} ${yT}
-      C ${x0 + k1} ${yT - 5}, ${x1 - k2} ${yT - 6}, ${x1} ${yT}
+      C ${x0+k1} ${yT-5}, ${x1-k2} ${yT-6}, ${x1} ${yT}
       L ${x1} ${yB}
-      C ${x1 - k2} ${yB + 6}, ${x0 + k1} ${yB + 5}, ${x0} ${yB}
+      C ${x1-k2} ${yB+6}, ${x0+k1} ${yB+5}, ${x0} ${yB}
       Z
     `;
   }
 
-  function makeDropEl(kind="main"){
-    const el = document.createElementNS("http://www.w3.org/2000/svg", kind==="main" ? "ellipse" : "circle");
+  function makeEl(tag){
+    return document.createElementNS("http://www.w3.org/2000/svg", tag);
+  }
+
+  function makeDrop(kind){
+    const el = makeEl(kind==="main" ? "ellipse" : "circle");
     el.setAttribute("fill","url(#inkGrad)");
     el.setAttribute("filter","url(#glow)");
     el.setAttribute("opacity","0");
@@ -249,76 +230,63 @@
     return el;
   }
 
-  function addSplat(x, y){
-    // simple impact mark
-    const g = document.createElementNS("http://www.w3.org/2000/svg","g");
-    const e = document.createElementNS("http://www.w3.org/2000/svg","ellipse");
-    e.setAttribute("cx", x);
-    e.setAttribute("cy", y);
-    e.setAttribute("rx", 2);
-    e.setAttribute("ry", 2);
+  function addSplat(x,y,scale=1){
+    const g = makeEl("g");
+    const e = makeEl("ellipse");
+    e.setAttribute("cx",x); e.setAttribute("cy",y);
+    e.setAttribute("rx", 3*scale); e.setAttribute("ry", 2.2*scale);
     e.setAttribute("fill","url(#inkGrad)");
     e.setAttribute("opacity","0.9");
     g.appendChild(e);
 
-    // tiny satellites splash
-    for(let i=0;i<5;i++){
-      const c = document.createElementNS("http://www.w3.org/2000/svg","circle");
-      const ang = (i/5)*Math.PI*2 + rand()*0.4;
-      const r = 6 + rand()*9;
+    // micro splash dots
+    for(let i=0;i<7;i++){
+      const c = makeEl("circle");
+      const ang = (i/7)*Math.PI*2 + rand()*0.5;
+      const r = 7*scale + rand()*10*scale;
       c.setAttribute("cx", x + Math.cos(ang)*r);
       c.setAttribute("cy", y + Math.sin(ang)*r);
-      c.setAttribute("r", 0.6 + rand()*1.5);
+      c.setAttribute("r", 0.7*scale + rand()*1.7*scale);
       c.setAttribute("fill","url(#inkGrad)");
       c.setAttribute("opacity","0.7");
       g.appendChild(c);
     }
 
-    splatG.appendChild(g);
-
-    // animate splat growth/fade (manual)
-    let life = 0;
-    return { g, e, life };
+    splatsG.appendChild(g);
+    return { g, e, life:0, scale };
   }
 
   // =========================
-  // Drive waveform (pull → push → ring-down)
+  // Drive waveform (looks right)
+  // pull -> push -> ring
   // =========================
   function drive(t){
-    // t in "frames"
-    // pull (negative) -> push (positive) -> damped ringing
-    if(t < 14)   return -0.65 * Math.sin(Math.PI * t/14);
-    if(t < 34)   return  1.35 * Math.sin(Math.PI * (t-14)/20);
+    if(t < 14) return -0.65 * Math.sin(Math.PI * t/14);
+    if(t < 34) return  1.40 * Math.sin(Math.PI * (t-14)/20);
     const u = (t-34);
-    return Math.exp(-u/25) * Math.sin(u/4);
+    return Math.exp(-u/26) * Math.sin(u/4.1);
   }
 
   // =========================
-  // Simulation state
+  // State
   // =========================
   let running = true;
   let t = 0;
 
-  // meniscus dynamics along X
   let menX = P.nozzleX;
   let menV = 0;
 
-  // jet geometry state
   let jetLen = 0;
   let neck = P.neck0;
+
   let pinched = false;
+  let pinchT = 0;
 
-  // droplets
-  const dropMain = { el: makeDropEl("main"), x: P.nozzleX+120, y: P.nozzleY, vx: 0, vy: 0, rx: 18, ry: 16, alive:false, mass: 1.0 };
-  const sat1 = { el: makeDropEl("sat"), x: P.nozzleX+95,  y: P.nozzleY-8, vx: 0, vy: 0, r: 4.2, alive:false, mass: 0.25 };
-  const sat2 = { el: makeDropEl("sat"), x: P.nozzleX+78,  y: P.nozzleY+7, vx: 0, vy: 0, r: 3.4, alive:false, mass: 0.18 };
+  const main = { el: makeDrop("main"), alive:false, x:0,y:0, vx:0,vy:0, rx:18,ry:16, mass:1.0 };
+  const s1   = { el: makeDrop("sat"),  alive:false, x:0,y:0, vx:0,vy:0, r:4.2, mass:0.25 };
+  const s2   = { el: makeDrop("sat"),  alive:false, x:0,y:0, vx:0,vy:0, r:3.4, mass:0.18 };
 
-  // impact marks
   const splats = [];
-
-  function clearGroup(g){
-    while(g.firstChild) g.removeChild(g.firstChild);
-  }
 
   function reset(){
     t = 0;
@@ -327,15 +295,19 @@
     jetLen = 0;
     neck = P.neck0;
     pinched = false;
+    pinchT = 0;
 
-    // reset droplets
-    for(const d of [dropMain, sat1, sat2]){
-      d.alive = false;
+    for(const d of [main,s1,s2]){
+      d.alive=false;
       d.el.setAttribute("opacity","0");
     }
-    // clear impacts
-    clearGroup(splatG);
+
+    // clear splats
+    while(splatsG.firstChild) splatsG.removeChild(splatsG.firstChild);
     splats.length = 0;
+
+    // clear jet to avoid trailing
+    jet.setAttribute("d","");
   }
 
   resetBtn.addEventListener("click", reset);
@@ -346,11 +318,47 @@
   });
 
   // =========================
-  // Droplet rendering
+  // Merge (sat -> main)
   // =========================
-  function renderDroplet(d){
+  function tryMerge(trailer, leader){
+    if(!trailer.alive || !leader.alive) return;
+    const dx = leader.x - trailer.x;
+    const dy = leader.y - trailer.y;
+    const dist = Math.hypot(dx,dy);
+
+    const behind = trailer.x < leader.x;
+    const faster = trailer.vx > leader.vx;
+
+    if(behind && faster && dist < P.mergeDist){
+      const m = trailer.mass + leader.mass;
+      leader.vx = (leader.vx*leader.mass + trailer.vx*trailer.mass)/m;
+      leader.vy = (leader.vy*leader.mass + trailer.vy*trailer.mass)/m;
+      leader.mass = m;
+
+      if(leader === main){
+        const s = Math.cbrt(leader.mass);
+        leader.rx = 18*s;
+        leader.ry = 16*s;
+      }
+      trailer.alive=false;
+      trailer.el.setAttribute("opacity","0");
+    }
+  }
+
+  // =========================
+  // Impact
+  // =========================
+  function impact(d){
+    d.alive=false;
+    d.el.setAttribute("opacity","0");
+    const y = clamp(d.y, 55, 365);
+    const scale = (d===main) ? clamp(Math.cbrt(d.mass), 0.8, 1.6) : 0.75;
+    splats.push(addSplat(P.substrateX, y, scale));
+  }
+
+  function render(d){
     if(!d.alive) return;
-    if(d === dropMain){
+    if(d===main){
       d.el.setAttribute("cx", d.x);
       d.el.setAttribute("cy", d.y);
       d.el.setAttribute("rx", d.rx);
@@ -364,54 +372,52 @@
   }
 
   // =========================
-  // Coalescence (satellites -> main)
+  // Pinch event
   // =========================
-  function tryMerge(trailer, leader){
-    if(!trailer.alive || !leader.alive) return;
+  function pinch(){
+    pinched = true;
+    pinchT = t;
 
-    const dx = leader.x - trailer.x;
-    const dy = leader.y - trailer.y;
-    const dist = Math.hypot(dx, dy);
+    const tipX = menX + jetLen + 18;
 
-    // trailer behind and faster, close enough -> merge
-    const trailing = dx > 0 ? false : true; // leader.x - trailer.x ; if trailer behind, dx positive? Actually if leader ahead, leader.x > trailer.x => dx positive
-    // Let's use clearer:
-    const isTrailerBehind = trailer.x < leader.x;
-    const isTrailerFaster = trailer.vx > leader.vx;
+    // main drop (stronger initial speed so it "goes")
+    main.alive = true;
+    main.mass  = 1.0;
+    main.x = tipX;
+    main.y = P.nozzleY;
 
-    if(isTrailerBehind && isTrailerFaster && dist < P.mergeDist){
-      // conserve momentum (mass-weighted)
-      const m = trailer.mass + leader.mass;
-      leader.vx = (leader.vx*leader.mass + trailer.vx*trailer.mass)/m;
-      leader.vy = (leader.vy*leader.mass + trailer.vy*trailer.mass)/m;
-      leader.mass = m;
+    const pushNow = Math.max(0, drive(t))*P.gain;
 
-      // simple volume add -> size update (area/volume proxy)
-      if(leader === dropMain){
-        const scale = Math.cbrt(leader.mass); // rough
-        leader.rx = 18 * scale;
-        leader.ry = 16 * scale;
-      }else{
-        leader.r *= Math.cbrt(leader.mass/(leader.mass-trailer.mass));
-      }
+    main.vx = clamp(4.2 + menV*0.9 + pushNow*2.2, 3.2, 12.0);
+    main.vy = (rand()-0.5) * 0.7;
 
-      trailer.alive = false;
-      trailer.el.setAttribute("opacity","0");
-    }
-  }
+    main.rx = 18; main.ry = 16;
+    main.el.setAttribute("opacity","1");
 
-  // =========================
-  // Impact (substrate)
-  // =========================
-  function checkImpact(d){
-    if(!d.alive) return;
-    if(d.x >= (P.substrateX - P.impactEps)){
-      // impact
-      d.alive = false;
-      d.el.setAttribute("opacity","0");
-      const sy = clamp(d.y, 55, 365);
-      const sp = addSplat(P.substrateX, sy);
-      splats.push(sp);
+    // satellites (looks-right)
+    const wantSat = rand() < P.satProb;
+    if(wantSat){
+      s1.alive=true;
+      s1.x = tipX - (26 + rand()*16);
+      s1.y = P.nozzleY - (7 + rand()*7);
+      s1.vx = main.vx * (0.72 + rand()*0.10);
+      s1.vy = (rand()-0.5) * 1.0;
+      s1.mass=0.24;
+      s1.r = 4.0;
+      s1.el.setAttribute("opacity","1");
+
+      s2.alive=true;
+      s2.x = tipX - (48 + rand()*22);
+      s2.y = P.nozzleY + (6 + rand()*8);
+      s2.vx = main.vx * (0.58 + rand()*0.10);
+      s2.vy = (rand()-0.5) * 1.0;
+      s2.mass=0.18;
+      s2.r = 3.2;
+      s2.el.setAttribute("opacity","1");
+    }else{
+      s1.alive=false; s2.alive=false;
+      s1.el.setAttribute("opacity","0");
+      s2.el.setAttribute("opacity","0");
     }
   }
 
@@ -421,161 +427,119 @@
   function step(){
     if(!running) return;
 
-    // variable time step (keep simple; "frames" treated as dt=1)
-    const dt = 1.0 * P.fpsScale;
-    t += dt;
+    t += 1;
 
-    // --- meniscus control ---
-    const u = drive(t) * P.gain;         // actuation
-    // meniscus "accel" (toy acoustic response)
-    menV += u * P.menMass;
-    menV *= P.menDamp;
+    // --- meniscus control
+    const u = drive(t) * P.gain;
+
+    // meniscus motion (toy acoustic)
+    menV += u * 0.20;
+    menV *= 0.90;
     menX += menV;
 
-    // meniscus bulge: push makes convex (+), pull makes concave (-)
-    const amp = clamp(u * 12, -18, 22);
+    // meniscus bulge (visual)
+    const amp = clamp(u*13, -18, 24);
     meniscus.setAttribute("d", meniscusPath(menX, amp));
 
-    // --- jet growth & necking ---
-    // length grows with push & inertia; retract on strong pull
-    // (this is a reduced-order vibe, not CFD)
+    // --- jet extend/neck
     const push = Math.max(0, u);
     const pull = Math.max(0, -u);
 
-    // jet length dynamics
-    jetLen += (1.8*push + 0.6*Math.max(0, menV)) - (0.9*pull);
-    jetLen = clamp(jetLen, 0, 520);
+    // extend on push, retract on pull
+    jetLen += (2.2*push + 0.6*Math.max(0,menV)) - (1.0*pull);
+    jetLen = clamp(jetLen, 0, 560);
 
-    // neck shrinks as jet extends; recover slightly with pull
-    neck += (-0.09*jetLen/30) + (0.10*pull);
-    // add mild oscillation to mimic capillary waves
-    neck += 0.25 * Math.exp(-(t-20)/80) * Math.sin((t-20)/3.4);
+    // necking: shrink with length, slight recovery with pull
+    neck += (-0.10*jetLen/28) + (0.12*pull);
+
+    // capillary-like ripple (visual only)
+    neck += 0.30 * Math.exp(-(t-18)/90) * Math.sin((t-18)/3.5);
     neck = clamp(neck, P.neckMin, P.neck0);
 
-    // draw jet only before pinch
+    // draw jet
     if(!pinched){
-      jet.setAttribute("d", jetPathFromMeniscus(menX, jetLen, neck));
+      jet.setAttribute("d", jetPath(menX, jetLen, neck));
     }else{
-      // after pinch: show short ligament near nozzle
-      const shortLen = clamp(40 - (t - pinchTime)*0.4, 0, 40);
+      // small ligament after pinch (shrinks away)
+      const lt = (t - pinchT);
+      const shortLen = clamp(44 - lt*0.55, 0, 44);
       if(shortLen > 0){
-        jet.setAttribute("d", jetPathFromMeniscus(menX, shortLen, clamp(neck+1.2, P.neckMin, P.neck0)));
+        jet.setAttribute("d", jetPath(menX, shortLen, clamp(neck+1.0, P.neckMin, P.neck0)));
       }else{
         jet.setAttribute("d", "");
       }
     }
 
-    // --- pinch-off event ---
-    // condition: neck below threshold after some time and sufficiently long jet
-    if(!pinched && t > P.pinchMinTime && jetLen > 120 && neck < P.pinchThreshold){
+    // pinch condition (demo tuned)
+    if(!pinched && t > 42 && jetLen > 120 && neck < 3.0){
       pinch();
     }
 
-    // --- droplets physics (gravity +X, linear drag) ---
-    for(const d of [dropMain, sat1, sat2]){
+    // --- droplet physics (+X gravity, light drag)
+    for(const d of [main,s1,s2]){
       if(!d.alive) continue;
 
-      // gravity along +X:
-      // dvx/dt = g - drag*vx
-      d.vx += (P.g - P.drag*d.vx) * dt;
+      // base dynamics
+      d.vx += (P.g - P.drag*d.vx);
+      d.vy += (-0.06*d.vy);
 
-      // (optional) keep small vy damping (no gravity in Y here)
-      d.vy += (-0.05*d.vy) * dt;
+      // "必ず当たる" assist near substrate (demo-only)
+      const dist = (P.substrateX - d.x);
+      if(dist < P.assistZone){
+        if(d.vx < P.assistMinV) d.vx += P.assistA;  // ensure progress
+        // small “attraction” to centerline (looks neat)
+        d.vy += (P.nozzleY - d.y) * 0.0008;
+      }
 
-      d.x += d.vx * dt;
-      d.y += d.vy * dt;
+      d.x += d.vx;
+      d.y += d.vy;
 
-      // main droplet capillary oscillation (damped)
-      if(d === dropMain){
-        const tau = (t - pinchTime);
-        const osc = Math.exp(-tau/38) * Math.sin(tau/3.8);
-        d.rx = (18 * Math.cbrt(d.mass)) + osc*2.8;
-        d.ry = (16 * Math.cbrt(d.mass)) - osc*2.8;
+      // main droplet oscillation (visual)
+      if(d === main){
+        const tau = Math.max(0, t - pinchT);
+        const osc = Math.exp(-tau/42) * Math.sin(tau/3.9);
+        const s = Math.cbrt(d.mass);
+        d.rx = 18*s + osc*2.8;
+        d.ry = 16*s - osc*2.8;
       }
     }
 
-    // --- merge (satellites into main) ---
-    tryMerge(sat1, dropMain);
-    tryMerge(sat2, dropMain);
+    // merge satellites into main
+    tryMerge(s1, main);
+    tryMerge(s2, main);
 
-    // --- impact ---
-    checkImpact(dropMain);
-    checkImpact(sat1);
-    checkImpact(sat2);
+    // impact check
+    for(const d of [main,s1,s2]){
+      if(!d.alive) continue;
+      if(d.x >= (P.substrateX - P.impactEps)){
+        impact(d);
+      }
+    }
 
-    // --- render droplets ---
-    renderDroplet(dropMain);
-    renderDroplet(sat1);
-    renderDroplet(sat2);
+    // render droplets
+    render(main); render(s1); render(s2);
 
-    // --- splat animate ---
+    // animate splats
     for(const sp of splats){
-      sp.life += dt;
-      const grow = 1 + Math.min(2.8, sp.life/10);
-      const fade = Math.max(0, 1 - sp.life/80);
-      sp.e.setAttribute("rx", 3.0 * grow);
-      sp.e.setAttribute("ry", 2.2 * grow);
-      sp.e.setAttribute("opacity", 0.85 * fade);
-      if(sp.life > 120){
-        if(sp.g.parentNode) sp.g.parentNode.removeChild(sp.g);
+      sp.life += 1;
+      const grow = 1 + Math.min(2.6, sp.life/10);
+      const fade = Math.max(0, 1 - sp.life/90);
+      sp.e.setAttribute("rx", 3.0*sp.scale*grow);
+      sp.e.setAttribute("ry", 2.2*sp.scale*grow);
+      sp.e.setAttribute("opacity", 0.85*fade);
+      if(sp.life > 140 && sp.g.parentNode){
+        sp.g.parentNode.removeChild(sp.g);
       }
     }
 
-    // --- reset ---
-    if(t > P.resetAt){
+    // cycle reset
+    if(t > P.cycle){
       reset();
     }
 
     requestAnimationFrame(step);
   }
 
-  let pinchTime = 0;
-
-  function pinch(){
-    pinched = true;
-    pinchTime = t;
-
-    // initial conditions at breakup
-    // main drop starts near ligament tip with initial velocity from meniscus motion and push
-    const tipX = menX + jetLen + 18;
-    dropMain.x = tipX;
-    dropMain.y = P.nozzleY;
-    dropMain.vx = clamp(2.2 + menV*0.55 + Math.max(0, drive(t))*1.1, 1.2, 6.5);
-    dropMain.vy = (rand()-0.5) * 0.5;
-    dropMain.mass = 1.0;
-    dropMain.alive = true;
-
-    dropMain.el.setAttribute("opacity","1");
-
-    // satellites: probabilistic, slightly behind, slower
-    const wantSat = rand() < P.satProb;
-
-    if(wantSat){
-      sat1.x = tipX - (24 + rand()*18);
-      sat1.y = P.nozzleY - (7 + rand()*6);
-      sat1.vx = dropMain.vx * (0.70 + rand()*0.12);
-      sat1.vy = (rand()-0.5) * 0.9;
-      sat1.mass = 0.22;
-      sat1.r = 4.0;
-      sat1.alive = true;
-      sat1.el.setAttribute("opacity","1");
-
-      sat2.x = tipX - (44 + rand()*22);
-      sat2.y = P.nozzleY + (6 + rand()*7);
-      sat2.vx = dropMain.vx * (0.58 + rand()*0.10);
-      sat2.vy = (rand()-0.5) * 0.9;
-      sat2.mass = 0.16;
-      sat2.r = 3.2;
-      sat2.alive = true;
-      sat2.el.setAttribute("opacity","1");
-    }else{
-      sat1.alive = false; sat2.alive = false;
-      sat1.el.setAttribute("opacity","0");
-      sat2.el.setAttribute("opacity","0");
-    }
-  }
-
-  // start
   reset();
   requestAnimationFrame(step);
 })();
