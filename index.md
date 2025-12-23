@@ -50,6 +50,56 @@ Each demo is self-contained and can be viewed directly in the browser.
 
 ---
 
+## PN Junction Band Energy Surface (Bias Sweep)
+
+This animation visualizes the **energy-band surface of a pn junction**
+under a continuous **bias sweep from forward to equilibrium to reverse**.
+
+- **x-axis**: Spatial position across the junction  
+  *(p-type → n-type)*  
+- **y-axis**: Applied junction bias  $V_a$  
+  *(forward → equilibrium → reverse)*  
+- **z-axis**: Energy (relative, eV)
+
+The band surface is constructed using a **depletion approximation**
+to emphasize the *geometric structure* of the electrostatic potential
+rather than carrier transport details.
+
+### Physical interpretation
+
+This 3D representation unifies what are traditionally shown as
+separate 2D band diagrams:
+
+- **Forward bias**: potential barrier collapses  
+- **Equilibrium**: built-in potential forms a stable barrier  
+- **Reverse bias**: depletion region widens and deepens  
+
+Any conventional textbook pn-junction band diagram corresponds to
+a **2D slice of this surface at a fixed bias**.
+
+Likewise, fixing position and sweeping bias reveals how the
+electrostatic barrier evolves continuously—something difficult to
+grasp from static figures alone.
+
+### Modeling assumptions
+
+- Abrupt pn junction  
+- Uniform doping on both sides  
+- Depletion approximation  
+- Energy plotted as  
+  $E_c(x) \propto -\phi(x)$ (relative scale)
+
+Carrier injection, recombination, and quasi-Fermi level splitting are
+intentionally omitted to keep the visualization focused on
+**electrostatic structure**.
+
+This animation serves as the **electrostatic foundation**
+for the MOS and NMOS visualizations that follow.
+
+![PN junction band energy surface](assets/images/pn_band_energy_surface.gif)
+
+---
+
 ## NMOS Under-Gate Potential (Vg Sweep)
 
 Electrostatic potential distribution φ(x, y) in the NMOS channel region,
