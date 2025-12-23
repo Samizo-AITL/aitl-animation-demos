@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Canvas Demo – Inkjet Droplet (V–I Drive)</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+    header { padding: 14px 16px; border-bottom: 1px solid rgba(127,127,127,.3); }
+    h1 { margin: 0 0 6px; font-size: 16px; font-weight: 700; }
+    .sub { margin: 0; opacity: .8; font-size: 12px; line-height: 1.4; }
+    .wrap { display: grid; grid-template-columns: 1fr; gap: 10px; padding: 12px 16px 16px; }
+    .panel { border: 1px solid rgba(127,127,127,.3); border-radius: 12px; overflow: hidden; }
+    canvas { display: block; width: 100%; height: 56vh; background: rgba(127,127,127,.08); }
+    .controls { padding: 10px 12px; display: grid; gap: 10px; }
+    .row { display: grid; grid-template-columns: 170px 1fr 70px; align-items: center; gap: 10px; }
+    label { font-size: 12px; opacity: .9; }
+    input[type="range"] { width: 100%; }
+    .btns { display: flex; gap: 8px; flex-wrap: wrap; }
+    button {
+      border: 1px solid rgba(127,127,127,.35);
+      background: rgba(127,127,127,.12);
+      padding: 8px 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    button:hover { background: rgba(127,127,127,.18); }
+    .note { font-size: 12px; opacity: .8; line-height: 1.5; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Canvas Demo – Inkjet Droplet Formation（V–I Drive Visualization）</h1>
+    <p class="sub">
+      Canvasで粒子として「ノズル→主滴→サテライト滴→着弾」を可視化します。スライダは擬似的な駆動電圧 V と電流 I を表示します（概念デモ）。
+    </p>
+  </header>
+
+  <div class="wrap">
+    <div class="panel">
+      <canvas id="cv" aria-label="Inkjet canvas demo"></canvas>
+      <div class="controls">
+        <div class="row">
+          <label for="driveV">Drive V（擬似）</label>
+          <input id="driveV" type="range" min="20" max="120" value="70" />
+          <div class="mono"><span id="driveVVal">70</span> V</div>
+        </div>
+        <div class="row">
+          <label>Estimated I（擬似）</label>
+          <input id="driveI" type="range" min="5" max="80" value="28" disabled />
+          <div class="mono"><span id="driveIVal">28</span> mA</div>
+        </div>
+
+        <div class="btns">
+          <button id="btnBurst">Burst（1回吐出）</button>
+          <button id="btnAuto">Auto ON/OFF</button>
+          <button id="btnReset">Reset</button>
+        </div>
+
+        <div class="note">
+          <b>目安：</b> V を上げるほど初速・滴径・サテライト発生確率が増えるようにしています（概念モデル）。
+          Canvasは「物理解析」ではなく「挙動の直感提示」向けです。
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  const canvas = document.getElementById("cv");
+  const ctx = canvas.getContext("2d", { alpha: false });
+
+  // --- HiDPI resize ---
+  function fitCanvas() {
+    const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+    const rect = canvas.getBoundingClientRect();
+    canvas.width  = Math.floor(rect.width * dpr);
+    canvas.height = Math.floor(rect.height * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // draw in CSS pixels
+  }
+  window.addEventListener("resize", fitCanvas, { passive: true });
+
+  // --- UI ---
+  const driveV = document.getElementById("driveV");
+  const driveI = document.getElementById("driveI");
+  const driveVVal = document.getElementById("driveVVal");
+  const driveIVal = document.getElementById("driveIVal");
+  const btnBurst = document.getElementById("btnBurst");
+  const btnAuto = document.getElementById("btnAuto");
+  const btnReset = document.getElementById("btnReset");
+
+  // Conceptual mapping: V -> I (not physically accurate; just a demo knob)
+  function updateVI() {
+    const V = Number(driveV.value);
+    // a gentle nonlinear mapping to make I responsive but bounded
+    const I = Math.round(5 + 0.55 * (V - 20) + 8 * Math.sin((V - 20) * Math.PI / 200));
+    driveI.value = String(Math.max(5, Math.min(80, I)));
+    driveVVal.textContent = String(V);
+    driveIVal.textContent = String(driveI.value);
+  }
+  driveV.addEventListener("input", updateVI);
+  updateVI();
+
+  // --- Simulation objects ---
+  const droplets = [];   // main drops
+  const sats = [];       // satellites
+  const mist = [];       // micro mist particles
+
+  // World constants (in CSS pixels)
+  const world = {
+    g: 900,          // gravity px/s^2
+    air: 0.02,       // drag coefficient
+    floorYFrac: 0.78 // impact plane
+  };
+
+  // Nozzle geometry
+  function nozzle() {
+    const w = canvas.getBoundingClientRect().width;
+    const h = canvas.getBoundingClientRect().height;
+    const cx = w * 0.30;
+    const top = h * 0.18;
+    const throatW = Math.max(18, w * 0.05);
+    const throatH = Math.max(26, h * 0.07);
+    const chamberW = throatW * 2.2;
+    const chamberH = throatH * 1.25;
+    return { w, h, cx, top, throatW, throatH, chamberW, chamberH };
+  }
+
+  // Random helper
+  const rand = (a, b) => a + Math.random() * (b - a);
+
+  // Spawn one burst
+  function burst() {
+    const V = Number(driveV.value);
+    const I = Number(driveI.value);
+
+    const nz = nozzle();
+    const y0 = nz.top + nz.throatH;
+    const x0 = nz.cx;
+
+    // Map V–I to droplet initial conditions (conceptual)
+    const speed = 260 + (V - 20) * 6.0 + (I - 5) * 2.0; // px/s downward
+    const radius = 5.5 + (V - 20) * 0.03;               // px
+    const spread = 0.10 + (120 - V) * 0.0006;           // lateral spread smaller at high V
+
+    // Main droplet
+    droplets.push({
+      x: x0 + rand(-1, 1),
+      y: y0 + 2,
+      vx: rand(-1, 1) * speed * spread,
+      vy: speed,
+      r: radius,
+      alive: true,
+      t: 0,
+      splitDone: false
+    });
+
+    // A little mist near nozzle
+    const mistN = Math.round(6 + (V - 20) * 0.08);
+    for (let i = 0; i < mistN; i++) {
+      mist.push({
+        x: x0 + rand(-8, 8),
+        y: y0 + rand(-6, 6),
+        vx: rand(-120, 120),
+        vy: rand(40, 220),
+        r: rand(0.8, 1.6),
+        life: rand(0.25, 0.6)
+      });
+    }
+  }
+
+  // Auto mode
+  let auto = false;
+  let autoAcc = 0;
+
+  btnBurst.addEventListener("click", burst);
+  btnAuto.addEventListener("click", () => { auto = !auto; });
+  btnReset.addEventListener("click", () => {
+    droplets.length = 0;
+    sats.length = 0;
+    mist.length = 0;
+  });
+
+  // --- Render helpers ---
+  function clear(w, h) {
+    // background
+    ctx.fillStyle = "#0c0f14";
+    ctx.fillRect(0, 0, w, h);
+  }
+
+  function drawGrid(w, h) {
+    ctx.save();
+    ctx.globalAlpha = 0.12;
+    ctx.strokeStyle = "#9fb3c8";
+    ctx.lineWidth = 1;
+
+    const step = 40;
+    for (let x = 0; x <= w; x += step) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, h);
+      ctx.stroke();
+    }
+    for (let y = 0; y <= h; y += step) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(w, y);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function drawNozzle(nz) {
+    const { cx, top, throatW, throatH, chamberW, chamberH } = nz;
+
+    // chamber
+    ctx.save();
+    ctx.globalAlpha = 0.95;
+    ctx.fillStyle = "#1f2a36";
+    ctx.strokeStyle = "#86a6c3";
+    ctx.lineWidth = 2;
+
+    const chX = cx - chamberW / 2;
+    const chY = top;
+    roundRect(chX, chY, chamberW, chamberH, 10);
+    ctx.fill();
+    ctx.stroke();
+
+    // throat
+    const thX = cx - throatW / 2;
+    const thY = top + chamberH - 4;
+    roundRect(thX, thY, throatW, throatH, 8);
+    ctx.fill();
+    ctx.stroke();
+
+    // meniscus line
+    ctx.globalAlpha = 0.8;
+    ctx.strokeStyle = "#cfe8ff";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(thX + 3, thY + throatH - 6);
+    ctx.quadraticCurveTo(cx, thY + throatH - 2, thX + throatW - 3, thY + throatH - 6);
+    ctx.stroke();
+
+    // label
+    ctx.globalAlpha = 0.9;
+    ctx.fillStyle = "#d7e8ff";
+    ctx.font = "12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace";
+    ctx.fillText("Nozzle", chX, chY - 8);
+
+    ctx.restore();
+  }
+
+  function drawImpactPlane(w, h, y) {
+    ctx.save();
+    ctx.globalAlpha = 0.35;
+    ctx.strokeStyle = "#d7e8ff";
+    ctx.setLineDash([6, 6]);
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(w, y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.globalAlpha = 0.8;
+    ctx.fillStyle = "#d7e8ff";
+    ctx.font = "12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace";
+    ctx.fillText("Impact plane", 10, y - 8);
+    ctx.restore();
+  }
+
+  function drawHUD(w, h) {
+    const V = Number(driveV.value);
+    const I = Number(driveI.value);
+
+    ctx.save();
+    ctx.globalAlpha = 0.95;
+    ctx.fillStyle = "#d7e8ff";
+    ctx.font = "12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace";
+    ctx.fillText(`Drive V–I (concept):  V=${V} V,  I=${I} mA`, 12, h - 14);
+
+    ctx.globalAlpha = 0.7;
+    ctx.fillText(`drops=${droplets.length}  satellites=${sats.length}  mist=${mist.length}  auto=${auto ? "ON" : "OFF"}`,
+                 12, h - 30);
+    ctx.restore();
+  }
+
+  function roundRect(x, y, w, h, r) {
+    const rr = Math.min(r, w / 2, h / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + rr, y);
+    ctx.arcTo(x + w, y, x + w, y + h, rr);
+    ctx.arcTo(x + w, y + h, x, y + h, rr);
+    ctx.arcTo(x, y + h, x, y, rr);
+    ctx.arcTo(x, y, x + w, y, rr);
+    ctx.closePath();
+  }
+
+  // --- Simulation update ---
+  let last = performance.now();
+
+  function step(now) {
+    const dt = Math.min(0.033, Math.max(0.001, (now - last) / 1000));
+    last = now;
+
+    fitCanvasIfNeeded();
+
+    const rect = canvas.getBoundingClientRect();
+    const w = rect.width;
+    const h = rect.height;
+    const nz = nozzle();
+    const floorY = h * world.floorYFrac;
+
+    // auto-burst at ~6 Hz
+    if (auto) {
+      autoAcc += dt;
+      const period = 1 / 6;
+      while (autoAcc >= period) {
+        autoAcc -= period;
+        burst();
+      }
+    }
+
+    // update droplets
+    for (const d of droplets) {
+      d.t += dt;
+      // drag
+      d.vx *= (1 - world.air);
+      d.vy *= (1 - world.air);
+
+      // gravity
+      d.vy += world.g * dt;
+
+      // integrate
+      d.x += d.vx * dt;
+      d.y += d.vy * dt;
+
+      // satellite splitting (concept)
+      if (!d.splitDone && d.t > 0.06) {
+        const V = Number(driveV.value);
+        const p = Math.max(0, Math.min(0.85, (V - 40) / 120)); // higher V -> higher split chance
+        if (Math.random() < p) {
+          d.splitDone = true;
+          const n = 1 + (Math.random() < 0.35 ? 1 : 0); // 1–2 satellites
+          for (let i = 0; i < n; i++) {
+            sats.push({
+              x: d.x + rand(-6, 6),
+              y: d.y + rand(-4, 4),
+              vx: d.vx + rand(-120, 120),
+              vy: d.vy * rand(0.55, 0.78),
+              r: Math.max(1.6, d.r * rand(0.22, 0.35)),
+              life: rand(0.9, 1.6)
+            });
+          }
+          // main drop shrinks a bit after pinch-off
+          d.r *= 0.88;
+        }
+      }
+
+      // impact
+      if (d.y + d.r >= floorY) {
+        d.alive = false;
+        // splash particles
+        const splashN = 10 + Math.round(d.r * 2);
+        for (let i = 0; i < splashN; i++) {
+          mist.push({
+            x: d.x + rand(-6, 6),
+            y: floorY + rand(-3, 3),
+            vx: rand(-220, 220),
+            vy: rand(-380, -120),
+            r: rand(0.7, 1.6),
+            life: rand(0.25, 0.65)
+          });
+        }
+      }
+
+      // bounds
+      if (d.y > h + 60 || d.x < -80 || d.x > w + 80) d.alive = false;
+    }
+
+    // satellites update
+    for (const s of sats) {
+      s.life -= dt;
+      s.vx *= (1 - world.air);
+      s.vy *= (1 - world.air);
+      s.vy += world.g * dt;
+      s.x += s.vx * dt;
+      s.y += s.vy * dt;
+
+      if (s.y + s.r >= floorY) {
+        s.life = -1;
+        // tiny splash
+        const n = 6;
+        for (let i = 0; i < n; i++) {
+          mist.push({
+            x: s.x + rand(-4, 4),
+            y: floorY + rand(-2, 2),
+            vx: rand(-160, 160),
+            vy: rand(-260, -90),
+            r: rand(0.6, 1.2),
+            life: rand(0.2, 0.45)
+          });
+        }
+      }
+    }
+
+    // mist update
+    for (const m of mist) {
+      m.life -= dt;
+      m.vx *= (1 - world.air * 0.6);
+      m.vy *= (1 - world.air * 0.6);
+      m.vy += world.g * dt * 0.55;
+      m.x += m.vx * dt;
+      m.y += m.vy * dt;
+    }
+
+    // cull
+    for (let i = droplets.length - 1; i >= 0; i--) if (!droplets[i].alive) droplets.splice(i, 1);
+    for (let i = sats.length - 1; i >= 0; i--) if (sats[i].life <= 0) sats.splice(i, 1);
+    for (let i = mist.length - 1; i >= 0; i--) if (mist[i].life <= 0) mist.splice(i, 1);
+
+    // render
+    clear(w, h);
+    drawGrid(w, h);
+    drawImpactPlane(w, h, floorY);
+    drawNozzle(nz);
+
+    // draw mist
+    ctx.save();
+    for (const m of mist) {
+      const a = Math.max(0, Math.min(1, m.life / 0.65));
+      ctx.globalAlpha = 0.45 * a;
+      ctx.fillStyle = "#cfe8ff";
+      ctx.beginPath();
+      ctx.arc(m.x, m.y, m.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+
+    // draw satellites
+    ctx.save();
+    ctx.fillStyle = "#bfe2ff";
+    for (const s of sats) {
+      const a = Math.max(0, Math.min(1, s.life / 1.6));
+      ctx.globalAlpha = 0.85 * a;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+
+    // draw main drops with a small tail
+    ctx.save();
+    for (const d of droplets) {
+      ctx.globalAlpha = 0.95;
+      ctx.fillStyle = "#e7f4ff";
+      ctx.beginPath();
+      ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+      ctx.fill();
+
+      // tail
+      ctx.globalAlpha = 0.20;
+      ctx.strokeStyle = "#e7f4ff";
+      ctx.lineWidth = Math.max(1, d.r * 0.35);
+      ctx.beginPath();
+      ctx.moveTo(d.x, d.y - d.r);
+      ctx.lineTo(d.x - d.vx * 0.02, d.y - d.r - d.vy * 0.02);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    drawHUD(w, h);
+
+    requestAnimationFrame(step);
+  }
+
+  // Fit canvas only when size changed to avoid cost
+  let lastW = 0, lastH = 0;
+  function fitCanvasIfNeeded() {
+    const r = canvas.getBoundingClientRect();
+    const w = Math.floor(r.width);
+    const h = Math.floor(r.height);
+    if (w !== lastW || h !== lastH) {
+      lastW = w; lastH = h;
+      fitCanvas();
+    }
+  }
+
+  // start
+  requestAnimationFrame(step);
+})();
+</script>
+</body>
+</html>
