@@ -48,6 +48,10 @@ Each demo is self-contained and can be viewed directly in the browser.
   Inkjet droplet generation, flight, and satellite formation visualization.  
   👉 [Open demo](./demo/js-svg/inkjet-droplet.html)
 
+
+- [Inkjet Droplet (Canvas)](demo/canvas/inkjet-canvas.html)
+
+
 ---
 
 ## PN Junction Band Energy Surface (Bias Sweep)
