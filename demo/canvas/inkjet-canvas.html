@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="ja">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Canvas Demo – Inkjet Droplet (V–I Drive)</title>
+  <title>Canvas Demo – Inkjet Droplet Formation (V–I Drive Visualization)</title>
   <style>
     :root { color-scheme: light dark; }
     body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
@@ -14,7 +14,7 @@
     .panel { border: 1px solid rgba(127,127,127,.3); border-radius: 12px; overflow: hidden; }
     canvas { display: block; width: 100%; height: 56vh; background: rgba(127,127,127,.08); }
     .controls { padding: 10px 12px; display: grid; gap: 10px; }
-    .row { display: grid; grid-template-columns: 170px 1fr 70px; align-items: center; gap: 10px; }
+    .row { display: grid; grid-template-columns: 200px 1fr 90px; align-items: center; gap: 10px; }
     label { font-size: 12px; opacity: .9; }
     input[type="range"] { width: 100%; }
     .btns { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -33,36 +33,39 @@
 </head>
 <body>
   <header>
-    <h1>Canvas Demo – Inkjet Droplet Formation（V–I Drive Visualization）</h1>
+    <h1>Canvas Demo – Inkjet Droplet Formation (V–I Drive Visualization)</h1>
     <p class="sub">
-      Canvasで粒子として「ノズル→主滴→サテライト滴→着弾」を可視化します。スライダは擬似的な駆動電圧 V と電流 I を表示します（概念デモ）。
+      This canvas demo visualizes nozzle ejection, main droplet formation, satellite droplets, and impact as particles.
+      The sliders represent conceptual drive voltage V and current I (not a physical simulation).
     </p>
   </header>
 
   <div class="wrap">
     <div class="panel">
       <canvas id="cv" aria-label="Inkjet canvas demo"></canvas>
+
       <div class="controls">
         <div class="row">
-          <label for="driveV">Drive V（擬似）</label>
+          <label for="driveV">Drive Voltage V (concept)</label>
           <input id="driveV" type="range" min="20" max="120" value="70" />
           <div class="mono"><span id="driveVVal">70</span> V</div>
         </div>
+
         <div class="row">
-          <label>Estimated I（擬似）</label>
+          <label>Estimated Current I (concept)</label>
           <input id="driveI" type="range" min="5" max="80" value="28" disabled />
           <div class="mono"><span id="driveIVal">28</span> mA</div>
         </div>
 
         <div class="btns">
-          <button id="btnBurst">Burst（1回吐出）</button>
-          <button id="btnAuto">Auto ON/OFF</button>
+          <button id="btnBurst">Burst (single shot)</button>
+          <button id="btnAuto">Auto ON / OFF</button>
           <button id="btnReset">Reset</button>
         </div>
 
         <div class="note">
-          <b>目安：</b> V を上げるほど初速・滴径・サテライト発生確率が増えるようにしています（概念モデル）。
-          Canvasは「物理解析」ではなく「挙動の直感提示」向けです。
+          <b>Note:</b> Increasing V increases initial velocity, droplet size, and the probability of satellite formation
+          based on a conceptual model. This demo is intended for intuitive visualization of behavior, not for physical analysis.
         </div>
       </div>
     </div>
@@ -79,7 +82,8 @@
     const rect = canvas.getBoundingClientRect();
     canvas.width  = Math.floor(rect.width * dpr);
     canvas.height = Math.floor(rect.height * dpr);
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // draw in CSS pixels
+    // draw in CSS pixels
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
   window.addEventListener("resize", fitCanvas, { passive: true });
 
@@ -95,7 +99,7 @@
   // Conceptual mapping: V -> I (not physically accurate; just a demo knob)
   function updateVI() {
     const V = Number(driveV.value);
-    // a gentle nonlinear mapping to make I responsive but bounded
+    // gentle nonlinear mapping to make I responsive but bounded
     const I = Math.round(5 + 0.55 * (V - 20) + 8 * Math.sin((V - 20) * Math.PI / 200));
     driveI.value = String(Math.max(5, Math.min(80, I)));
     driveVVal.textContent = String(V);
@@ -186,7 +190,6 @@
 
   // --- Render helpers ---
   function clear(w, h) {
-    // background
     ctx.fillStyle = "#0c0f14";
     ctx.fillRect(0, 0, w, h);
   }
@@ -216,13 +219,13 @@
   function drawNozzle(nz) {
     const { cx, top, throatW, throatH, chamberW, chamberH } = nz;
 
-    // chamber
     ctx.save();
     ctx.globalAlpha = 0.95;
     ctx.fillStyle = "#1f2a36";
     ctx.strokeStyle = "#86a6c3";
     ctx.lineWidth = 2;
 
+    // chamber
     const chX = cx - chamberW / 2;
     const chY = top;
     roundRect(chX, chY, chamberW, chamberH, 10);
@@ -281,11 +284,13 @@
     ctx.globalAlpha = 0.95;
     ctx.fillStyle = "#d7e8ff";
     ctx.font = "12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace";
-    ctx.fillText(`Drive V–I (concept):  V=${V} V,  I=${I} mA`, 12, h - 14);
+    ctx.fillText(`Drive V–I (concept):  V = ${V} V,  I = ${I} mA`, 12, h - 14);
 
     ctx.globalAlpha = 0.7;
-    ctx.fillText(`drops=${droplets.length}  satellites=${sats.length}  mist=${mist.length}  auto=${auto ? "ON" : "OFF"}`,
-                 12, h - 30);
+    ctx.fillText(
+      `Drops: ${droplets.length}   Satellites: ${sats.length}   Mist: ${mist.length}   Auto: ${auto ? "ON" : "OFF"}`,
+      12, h - 30
+    );
     ctx.restore();
   }
 
@@ -300,7 +305,7 @@
     ctx.closePath();
   }
 
-  // --- Simulation update ---
+  // --- Simulation loop ---
   let last = performance.now();
 
   function step(now) {
@@ -328,6 +333,7 @@
     // update droplets
     for (const d of droplets) {
       d.t += dt;
+
       // drag
       d.vx *= (1 - world.air);
       d.vy *= (1 - world.air);
@@ -364,6 +370,7 @@
       // impact
       if (d.y + d.r >= floorY) {
         d.alive = false;
+
         // splash particles
         const splashN = 10 + Math.round(d.r * 2);
         for (let i = 0; i < splashN; i++) {
@@ -429,7 +436,7 @@
     drawImpactPlane(w, h, floorY);
     drawNozzle(nz);
 
-    // draw mist
+    // mist
     ctx.save();
     for (const m of mist) {
       const a = Math.max(0, Math.min(1, m.life / 0.65));
@@ -441,7 +448,7 @@
     }
     ctx.restore();
 
-    // draw satellites
+    // satellites
     ctx.save();
     ctx.fillStyle = "#bfe2ff";
     for (const s of sats) {
@@ -453,7 +460,7 @@
     }
     ctx.restore();
 
-    // draw main drops with a small tail
+    // main drops
     ctx.save();
     for (const d of droplets) {
       ctx.globalAlpha = 0.95;
@@ -478,7 +485,7 @@
     requestAnimationFrame(step);
   }
 
-  // Fit canvas only when size changed to avoid cost
+  // Fit canvas only when size changed
   let lastW = 0, lastH = 0;
   function fitCanvasIfNeeded() {
     const r = canvas.getBoundingClientRect();
@@ -490,7 +497,6 @@
     }
   }
 
-  // start
   requestAnimationFrame(step);
 })();
 </script>
