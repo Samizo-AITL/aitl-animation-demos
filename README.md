@@ -98,7 +98,7 @@ for the MOS and NMOS visualizations that follow.
 ## MOS Surface Potential (Weak Inversion → Threshold → Strong Inversion)
 
 This animation visualizes the **MOS surface potential**
-$(\phi(L, V_g)$) as a continuous function of **channel position** and
+ $(\phi(L, V_g)$ ) as a continuous function of **channel position** and
 **gate voltage**, explicitly connecting:
 
 **weak inversion → threshold → strong inversion**
