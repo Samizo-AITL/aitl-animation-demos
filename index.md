@@ -38,19 +38,27 @@ Each demo is self-contained and can be viewed directly in the browser.
   Stacked animation visualizing PID–FSM–LLM layered architecture.  
   👉 [Open demo](./demo/css-only/layer-stack.html)
 
+---
+
 ## JS + SVG Demos
 
 - **AITL Control Flow Demo**  
   PID response → disturbance → FSM detection → LLM gain re-tuning → target re-tracking.  
   👉 [Open demo](./demo/js-svg/aitl-control-flow.html)
 
-- **Inkjet Droplet Formation Demo**  
-  Inkjet droplet generation, flight, and satellite formation visualization.  
+- **Inkjet Droplet Formation Demo (JS + SVG)**  
+  Inkjet droplet generation, flight, and satellite formation visualization using SVG graphics controlled by JavaScript.  
   👉 [Open demo](./demo/js-svg/inkjet-droplet.html)
 
+---
 
-- [Inkjet Droplet (Canvas)](demo/canvas/inkjet-canvas.html)
+## Canvas Demos
 
+- **Inkjet Droplet Formation Demo (Canvas)**  
+  Particle-based visualization of inkjet droplet ejection, main droplet formation, satellite droplets, and impact.  
+  Drive voltage V and current I are shown as conceptual parameters to illustrate qualitative behavior changes.  
+  This demo is intended for intuitive understanding of dynamics, not for physical or CFD analysis.  
+  👉 [Open demo](./demo/canvas/inkjet-canvas.html)
 
 ---
 
