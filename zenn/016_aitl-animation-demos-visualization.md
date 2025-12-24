@@ -1,5 +1,5 @@
 ---
-title: "【AITL】Animation Demosで理解する三層制御アーキテクチャの可視化"
+title: "【Anim】Animation Demosで理解する三層制御アーキテクチャの可視化"
 emoji: "🎞️"
 type: "tech"
 topics: ["aitl", "制御理論", "visualization", "css", "svg", "canvas"]
