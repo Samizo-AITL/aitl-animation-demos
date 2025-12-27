@@ -2,58 +2,121 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>PZT Perovskite Domain Demo</title>
+<title>PZT ペロブスカイト分極（教育用誇張）</title>
+
 <style>
-  body { background:#111; color:#eee; font-family:sans-serif; }
-  svg { display:block; margin:auto; background:#1a1a1a; }
-  .pb { fill:#888; }
-  .o  { fill:#4aa3df; }
-  .b  { fill:#e74c3c; }
-  .domain-up { fill:#3fa9f5; opacity:0.3; }
-  .domain-down { fill:#f57c3f; opacity:0.3; }
+  body {
+    margin: 0;
+    background: #111;
+    color: #eee;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    text-align: center;
+  }
+
+  h2 {
+    margin: 20px 0 10px;
+    font-weight: 600;
+  }
+
+  svg {
+    display: block;
+    margin: 0 auto;
+    background: #1a1a1a;
+  }
+
+  /* 原子色 */
+  .pb { fill: #999; }        /* Pb */
+  .o  { fill: #4aa3df; }     /* O */
+  .b  { fill: #e74c3c; }     /* Zr/Ti */
+
+  /* ドメイン */
+  .domain-up   { fill: #3fa9f5; opacity: 0.25; }
+  .domain-down { fill: #f57c3f; opacity: 0.25; }
 </style>
 </head>
+
 <body>
 
-<h2 style="text-align:center;">PZT ペロブスカイト分極（教育用誇張）</h2>
+<h2>PZT ペロブスカイト分極（教育用誇張）</h2>
 
 <svg width="600" height="300" viewBox="0 0 600 300">
-  <!-- ドメイン -->
-  <rect id="domain" x="0" y="0" width="600" height="300" class="domain-up"/>
 
-  <!-- 単位胞 -->
-  <g id="cell" transform="translate(300 150)">
-    <!-- Pb -->
-    <circle class="pb" cx="-60" cy="-60" r="6"/>
-    <circle class="pb" cx="60" cy="-60" r="6"/>
-    <circle class="pb" cx="-60" cy="60" r="6"/>
-    <circle class="pb" cx="60" cy="60" r="6"/>
+  <!-- ドメイン背景 -->
+  <rect id="domainUp"   x="0" y="0"   width="600" height="150" class="domain-up"/>
+  <rect id="domainDown" x="0" y="150" width="600" height="150" class="domain-down"/>
 
-    <!-- O -->
-    <circle class="o" cx="0" cy="-70" r="5"/>
-    <circle class="o" cx="70" cy="0" r="5"/>
-    <circle class="o" cx="0" cy="70" r="5"/>
-    <circle class="o" cx="-70" cy="0" r="5"/>
+  <!-- 単位胞テンプレート（JSで複製） -->
+  <g id="cell">
+    <!-- Pb（角） -->
+    <circle class="pb" cx="-30" cy="-30" r="5"/>
+    <circle class="pb" cx="30"  cy="-30" r="5"/>
+    <circle class="pb" cx="-30" cy="30"  r="5"/>
+    <circle class="pb" cx="30"  cy="30"  r="5"/>
 
-    <!-- Zr/Ti -->
-    <circle id="bsite" class="b" cx="0" cy="0" r="8"/>
+    <!-- O（面心） -->
+    <circle class="o" cx="0"  cy="-40" r="4"/>
+    <circle class="o" cx="40" cy="0"   r="4"/>
+    <circle class="o" cx="0"  cy="40"  r="4"/>
+    <circle class="o" cx="-40" cy="0"  r="4"/>
+
+    <!-- Zr / Ti（Bサイト） -->
+    <circle id="bsite" class="b" cx="0" cy="0" r="6"/>
   </g>
+
 </svg>
 
 <script>
+const svg = document.querySelector("svg");
+const baseCell = document.getElementById("cell");
+
+/* テンプレートは非表示 */
+baseCell.style.display = "none";
+
+/* セル配置パラメータ */
+const centerX = 300;
+const centerY = 150;
+const pitch   = 60;   // セル間隔
+const count   = 5;    // 上下に並べる数
+
+const cells = [];
+
+/* 単位胞を縦に並べる */
+for (let i = -count; i <= count; i++) {
+  const c = baseCell.cloneNode(true);
+  c.style.display = "block";
+  c.setAttribute(
+    "transform",
+    `translate(${centerX} ${centerY + i * pitch})`
+  );
+  svg.appendChild(c);
+
+  cells.push({
+    node: c,
+    index: i
+  });
+}
+
+/* アニメーション */
 let t = 0;
+
 setInterval(() => {
   t += 0.05;
-  const dy = Math.sin(t) * 20; // 誇張変位
-  document.getElementById("bsite")
-    .setAttribute("cy", dy);
+  const s = Math.sin(t);
 
-  const domain = document.getElementById("domain");
-  if (Math.sin(t) > 0) {
-    domain.setAttribute("class","domain-up");
-  } else {
-    domain.setAttribute("class","domain-down");
-  }
+  /* 上下で分極方向を反転 */
+  cells.forEach(c => {
+    const bsite = c.node.querySelector("#bsite");
+    const dir = (c.index <= 0) ? 1 : -1;   // 上：↑ 下：↓
+    bsite.setAttribute("cy", s * 12 * dir);
+  });
+
+  /* ドメイン強調 */
+  document.getElementById("domainUp").style.opacity =
+    s > 0 ? 0.45 : 0.15;
+
+  document.getElementById("domainDown").style.opacity =
+    s > 0 ? 0.15 : 0.45;
+
 }, 50);
 </script>
 
