@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>PZT Perovskite Domain Demo</title>
+<style>
+  body { background:#111; color:#eee; font-family:sans-serif; }
+  svg { display:block; margin:auto; background:#1a1a1a; }
+  .pb { fill:#888; }
+  .o  { fill:#4aa3df; }
+  .b  { fill:#e74c3c; }
+  .domain-up { fill:#3fa9f5; opacity:0.3; }
+  .domain-down { fill:#f57c3f; opacity:0.3; }
+</style>
+</head>
+<body>
+
+<h2 style="text-align:center;">PZT ペロブスカイト分極（教育用誇張）</h2>
+
+<svg width="600" height="300" viewBox="0 0 600 300">
+  <!-- ドメイン -->
+  <rect id="domain" x="0" y="0" width="600" height="300" class="domain-up"/>
+
+  <!-- 単位胞 -->
+  <g id="cell" transform="translate(300 150)">
+    <!-- Pb -->
+    <circle class="pb" cx="-60" cy="-60" r="6"/>
+    <circle class="pb" cx="60" cy="-60" r="6"/>
+    <circle class="pb" cx="-60" cy="60" r="6"/>
+    <circle class="pb" cx="60" cy="60" r="6"/>
+
+    <!-- O -->
+    <circle class="o" cx="0" cy="-70" r="5"/>
+    <circle class="o" cx="70" cy="0" r="5"/>
+    <circle class="o" cx="0" cy="70" r="5"/>
+    <circle class="o" cx="-70" cy="0" r="5"/>
+
+    <!-- Zr/Ti -->
+    <circle id="bsite" class="b" cx="0" cy="0" r="8"/>
+  </g>
+</svg>
+
+<script>
+let t = 0;
+setInterval(() => {
+  t += 0.05;
+  const dy = Math.sin(t) * 20; // 誇張変位
+  document.getElementById("bsite")
+    .setAttribute("cy", dy);
+
+  const domain = document.getElementById("domain");
+  if (Math.sin(t) > 0) {
+    domain.setAttribute("class","domain-up");
+  } else {
+    domain.setAttribute("class","domain-down");
+  }
+}, 50);
+</script>
+
+</body>
+</html>
