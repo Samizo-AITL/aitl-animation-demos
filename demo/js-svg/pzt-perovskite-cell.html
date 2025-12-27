@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>PZT ペロブスカイト単位胞（結晶構造重視）</title>
+<title>PZT ペロブスカイト単位胞（完全八面体）</title>
 
 <style>
   body {
@@ -29,7 +29,7 @@
   .o  { fill: #4aa3df; }    /* O  : 小 */
   .b  { fill: #e74c3c; }    /* Zr/Ti : 中 */
 
-  /* 結晶ワイヤーフレーム（O6八面体） */
+  /* 八面体エッジ（薄線） */
   .lattice {
     stroke: #9bb7cc;
     stroke-width: 1;
@@ -37,57 +37,65 @@
     fill: none;
   }
 
-  /* z軸ガイド */
+  /* z軸（ガイド） */
   .axis {
     stroke: #777;
     stroke-width: 1;
     stroke-dasharray: 4 4;
-    opacity: 0.5;
+    opacity: 0.45;
   }
 </style>
 </head>
 
 <body>
-<h2>PZT ペロブスカイト単位胞（結晶構造重視）</h2>
+<h2>PZT ペロブスカイト単位胞（完全八面体・z歪み）</h2>
 
 <svg width="800" height="800" viewBox="0 0 500 500">
 
-  <!-- z軸 -->
+  <!-- z軸（消したければ丸ごと削除OK） -->
   <line x1="250" y1="80" x2="250" y2="420" class="axis"/>
   <text x="258" y="95" fill="#aaa">z</text>
 
-  <!-- O 原子（面心） -->
-  <circle class="o" cx="250" cy="180" r="5"/>
-  <circle class="o" cx="250" cy="320" r="5"/>
-  <circle class="o" cx="210" cy="250" r="5"/>
-  <circle class="o" cx="290" cy="250" r="5"/>
-  <circle class="o" cx="250" cy="210" r="5"/>
-  <circle class="o" cx="250" cy="290" r="5"/>
+  <!-- ========= O 原子（6点：固定） ========= -->
+  <!-- 上頂点 (z+) -->
+  <circle id="Otop" class="o" cx="250" cy="180" r="5"/>
+  <!-- 下頂点 (z-) -->
+  <circle id="Obot" class="o" cx="250" cy="320" r="5"/>
 
-  <!-- O6 八面体ワイヤーフレーム -->
+  <!-- 赤道4点（±x, ±y） -->
+  <circle id="Oleft"  class="o" cx="210" cy="250" r="5"/>
+  <circle id="Oright" class="o" cx="290" cy="250" r="5"/>
+  <circle id="Oup"    class="o" cx="250" cy="210" r="5"/>
+  <circle id="Odown"  class="o" cx="250" cy="290" r="5"/>
+
+  <!-- ========= O6 八面体（12エッジ：完全） ========= -->
   <g id="octa" class="lattice">
+    <!-- 上面：Otop と赤道4点を結ぶ（4本） -->
+    <line id="e_t_left"  x1="250" y1="180" x2="210" y2="250"/>
+    <line id="e_t_right" x1="250" y1="180" x2="290" y2="250"/>
+    <line id="e_t_up"    x1="250" y1="180" x2="250" y2="210"/>
+    <line id="e_t_down"  x1="250" y1="180" x2="250" y2="290"/>
 
-    <!-- z方向 -->
-    <line id="oz_top"    x1="250" y1="180" x2="250" y2="210"/>
-    <line id="oz_bottom" x1="250" y1="290" x2="250" y2="320"/>
+    <!-- 下面：Obot と赤道4点を結ぶ（4本） -->
+    <line id="e_b_left"  x1="250" y1="320" x2="210" y2="250"/>
+    <line id="e_b_right" x1="250" y1="320" x2="290" y2="250"/>
+    <line id="e_b_up"    x1="250" y1="320" x2="250" y2="210"/>
+    <line id="e_b_down"  x1="250" y1="320" x2="250" y2="290"/>
 
-    <!-- 上面 -->
-    <line x1="210" y1="250" x2="250" y2="210"/>
-    <line x1="250" y1="210" x2="290" y2="250"/>
-
-    <!-- 下面 -->
-    <line x1="210" y1="250" x2="250" y2="290"/>
-    <line x1="250" y1="290" x2="290" y2="250"/>
-
+    <!-- 赤道（xy面）：四角形（4本）※これは固定 -->
+    <line id="e_eq1" x1="210" y1="250" x2="250" y2="210"/>
+    <line id="e_eq2" x1="250" y1="210" x2="290" y2="250"/>
+    <line id="e_eq3" x1="290" y1="250" x2="250" y2="290"/>
+    <line id="e_eq4" x1="250" y1="290" x2="210" y2="250"/>
   </g>
 
-  <!-- Pb（Aサイト・角：投影） -->
+  <!-- ========= Pb（Aサイト・角：投影） ========= -->
   <circle class="pb" cx="200" cy="200" r="8"/>
   <circle class="pb" cx="300" cy="200" r="8"/>
   <circle class="pb" cx="200" cy="300" r="8"/>
   <circle class="pb" cx="300" cy="300" r="8"/>
 
-  <!-- Zr/Ti（Bサイト） -->
+  <!-- ========= Zr/Ti（Bサイト：主役） ========= -->
   <circle id="bsite" class="b" cx="250" cy="250" r="6.5"/>
 
 </svg>
@@ -95,27 +103,65 @@
 <script>
 let t = 0;
 
-const bsite     = document.getElementById("bsite");
-const ozTop     = document.getElementById("oz_top");
-const ozBottom  = document.getElementById("oz_bottom");
+const bsite = document.getElementById("bsite");
+
+// 上面4本（動かす：z歪み）
+const eTL = document.getElementById("e_t_left");
+const eTR = document.getElementById("e_t_right");
+const eTU = document.getElementById("e_t_up");
+const eTD = document.getElementById("e_t_down");
+
+// 下面4本（動かす：z歪み）
+const eBL = document.getElementById("e_b_left");
+const eBR = document.getElementById("e_b_right");
+const eBU = document.getElementById("e_b_up");
+const eBD = document.getElementById("e_b_down");
+
+// 固定点（O原子座標）
+const O = {
+  top:  { x:250, y:180 },
+  bot:  { x:250, y:320 },
+  left: { x:210, y:250 },
+  right:{ x:290, y:250 },
+  up:   { x:250, y:210 },
+  down: { x:250, y:290 }
+};
+
+// 線分更新（2点を結ぶ）
+function setLine(line, p1, p2){
+  line.setAttribute("x1", p1.x);
+  line.setAttribute("y1", p1.y);
+  line.setAttribute("x2", p2.x);
+  line.setAttribute("y2", p2.y);
+}
 
 setInterval(() => {
   t += 0.05;
 
-  /* Bサイトのオフセンタ変位（主役） */
+  // Bサイトのオフセンタ変位（主役）
   const dz = Math.sin(t) * 10;
   bsite.setAttribute("cy", 250 - dz);
 
-  /* 八面体のz方向緩和（受動・小さく・位相遅れ） */
+  // 八面体の z 方向緩和（受動・小さく・位相遅れ）
   const relax = Math.sin(t - 0.6) * 3;
 
-  /* 上側O-O */
-  ozTop.setAttribute("y1", 180 - relax);
-  ozTop.setAttribute("y2", 210 - relax);
+  // z歪み：上頂点を少し上へ、下頂点を少し下へ（O原子は固定にしているので“線だけ”動かす）
+  const topP = { x: O.top.x, y: O.top.y - relax };
+  const botP = { x: O.bot.x, y: O.bot.y + relax };
 
-  /* 下側O-O */
-  ozBottom.setAttribute("y1", 290 + relax);
-  ozBottom.setAttribute("y2", 320 + relax);
+  // 上面4本
+  setLine(eTL, topP, O.left);
+  setLine(eTR, topP, O.right);
+  setLine(eTU, topP, O.up);
+  setLine(eTD, topP, O.down);
+
+  // 下面4本
+  setLine(eBL, botP, O.left);
+  setLine(eBR, botP, O.right);
+  setLine(eBU, botP, O.up);
+  setLine(eBD, botP, O.down);
+
+  // 赤道4本（xy面）は固定（何もしない）
 
 }, 50);
 </script>
