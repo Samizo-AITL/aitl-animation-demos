@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>PZT Perovskite Unit Cell</title>
+
+<style>
+  body {
+    margin: 0;
+    background: #111;
+    color: #eee;
+    font-family: system-ui, sans-serif;
+    text-align: center;
+  }
+  h2 { margin: 20px 0; }
+
+  svg {
+    display: block;
+    margin: auto;
+    background: #1a1a1a;
+  }
+
+  .pb { fill: #aaa; }
+  .o  { fill: #4aa3df; }
+  .b  { fill: #e74c3c; }
+
+  .bond {
+    stroke: #6fa8dc;
+    stroke-width: 2;
+    opacity: 0.6;
+  }
+
+  .axis {
+    stroke: #888;
+    stroke-width: 1;
+    stroke-dasharray: 4 4;
+  }
+
+  .pvec {
+    stroke: yellow;
+    stroke-width: 3;
+    marker-end: url(#arrow);
+  }
+</style>
+</head>
+
+<body>
+<h2>PZT ペロブスカイト単位胞（結晶構造重視）</h2>
+
+<svg width="500" height="500" viewBox="0 0 500 500">
+
+<defs>
+  <marker id="arrow" markerWidth="10" markerHeight="10"
+          refX="5" refY="5" orient="auto">
+    <path d="M0,0 L10,5 L0,10 Z" fill="yellow"/>
+  </marker>
+</defs>
+
+<!-- 座標軸 -->
+<line x1="250" y1="80" x2="250" y2="420" class="axis"/>
+<text x="260" y="90" fill="#aaa">z</text>
+
+<!-- O6 八面体（z方向） -->
+<line class="bond" x1="250" y1="180" x2="250" y2="320"/>
+<circle class="o" cx="250" cy="180" r="6"/>
+<circle class="o" cx="250" cy="320" r="6"/>
+
+<!-- O6 八面体（x,y は投影表現） -->
+<circle class="o" cx="210" cy="250" r="6"/>
+<circle class="o" cx="290" cy="250" r="6"/>
+<circle class="o" cx="250" cy="210" r="6"/>
+<circle class="o" cx="250" cy="290" r="6"/>
+
+<!-- Bサイト（Zr/Ti） -->
+<circle id="bsite" class="b" cx="250" cy="250" r="10"/>
+
+<!-- Aサイト（Pb）角（投影） -->
+<circle class="pb" cx="200" cy="200" r="5"/>
+<circle class="pb" cx="300" cy="200" r="5"/>
+<circle class="pb" cx="200" cy="300" r="5"/>
+<circle class="pb" cx="300" cy="300" r="5"/>
+
+<!-- 分極ベクトル -->
+<line id="pvec" class="pvec"
+      x1="250" y1="250" x2="250" y2="220"/>
+
+</svg>
+
+<script>
+let t = 0;
+const bsite = document.getElementById("bsite");
+const pvec  = document.getElementById("pvec");
+
+setInterval(() => {
+  t += 0.05;
+  const dz = Math.sin(t) * 15; // 誇張だが相対関係は正しい
+
+  bsite.setAttribute("cy", 250 - dz);
+  pvec.setAttribute("y2", 250 - dz * 1.8);
+
+}, 50);
+</script>
+
+</body>
+</html>
