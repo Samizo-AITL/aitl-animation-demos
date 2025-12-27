@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>PZT ペロブスカイト単位胞（完全八面体）</title>
+<title>PZT Perovskite Unit Cell (Complete Octahedron, z-distortion)</title>
 
 <style>
   body {
     margin: 0;
     background: #111;
     color: #eee;
-    font-family: system-ui, sans-serif;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     text-align: center;
   }
 
@@ -24,12 +24,12 @@
     background: #1a1a1a;
   }
 
-  /* 原子 */
-  .pb { fill: #aaa; }       /* Pb : 大 */
-  .o  { fill: #4aa3df; }    /* O  : 小 */
-  .b  { fill: #e74c3c; }    /* Zr/Ti : 中 */
+  /* Atoms */
+  .pb { fill: #aaa; }       /* Pb : A-site (large, background) */
+  .o  { fill: #4aa3df; }    /* O  : framework */
+  .b  { fill: #e74c3c; }    /* Zr/Ti : B-site (active) */
 
-  /* 八面体エッジ（薄線） */
+  /* Octahedral edges (thin, subtle) */
   .lattice {
     stroke: #9bb7cc;
     stroke-width: 1;
@@ -37,7 +37,7 @@
     fill: none;
   }
 
-  /* z軸（ガイド） */
+  /* z-axis guide (optional) */
   .axis {
     stroke: #777;
     stroke-width: 1;
@@ -48,54 +48,53 @@
 </head>
 
 <body>
-<h2>PZT ペロブスカイト単位胞（完全八面体・z歪み）</h2>
+<h2>PZT Perovskite Unit Cell (Complete Octahedron, z-Distortion)</h2>
 
 <svg width="800" height="800" viewBox="0 0 500 500">
 
-  <!-- z軸（消したければ丸ごと削除OK） -->
+  <!-- z-axis guide -->
   <line x1="250" y1="80" x2="250" y2="420" class="axis"/>
   <text x="258" y="95" fill="#aaa">z</text>
 
-  <!-- ========= O 原子（6点：固定） ========= -->
-  <!-- 上頂点 (z+) -->
+  <!-- Oxygen atoms (fixed) -->
+  <!-- Top / Bottom (z±) -->
   <circle id="Otop" class="o" cx="250" cy="180" r="5"/>
-  <!-- 下頂点 (z-) -->
   <circle id="Obot" class="o" cx="250" cy="320" r="5"/>
 
-  <!-- 赤道4点（±x, ±y） -->
+  <!-- Equatorial (±x, ±y) -->
   <circle id="Oleft"  class="o" cx="210" cy="250" r="5"/>
   <circle id="Oright" class="o" cx="290" cy="250" r="5"/>
   <circle id="Oup"    class="o" cx="250" cy="210" r="5"/>
   <circle id="Odown"  class="o" cx="250" cy="290" r="5"/>
 
-  <!-- ========= O6 八面体（12エッジ：完全） ========= -->
+  <!-- Complete O6 octahedron (12 edges) -->
   <g id="octa" class="lattice">
-    <!-- 上面：Otop と赤道4点を結ぶ（4本） -->
+    <!-- Top apex connections -->
     <line id="e_t_left"  x1="250" y1="180" x2="210" y2="250"/>
     <line id="e_t_right" x1="250" y1="180" x2="290" y2="250"/>
     <line id="e_t_up"    x1="250" y1="180" x2="250" y2="210"/>
     <line id="e_t_down"  x1="250" y1="180" x2="250" y2="290"/>
 
-    <!-- 下面：Obot と赤道4点を結ぶ（4本） -->
+    <!-- Bottom apex connections -->
     <line id="e_b_left"  x1="250" y1="320" x2="210" y2="250"/>
     <line id="e_b_right" x1="250" y1="320" x2="290" y2="250"/>
     <line id="e_b_up"    x1="250" y1="320" x2="250" y2="210"/>
     <line id="e_b_down"  x1="250" y1="320" x2="250" y2="290"/>
 
-    <!-- 赤道（xy面）：四角形（4本）※これは固定 -->
-    <line id="e_eq1" x1="210" y1="250" x2="250" y2="210"/>
-    <line id="e_eq2" x1="250" y1="210" x2="290" y2="250"/>
-    <line id="e_eq3" x1="290" y1="250" x2="250" y2="290"/>
-    <line id="e_eq4" x1="250" y1="290" x2="210" y2="250"/>
+    <!-- Equatorial square (xy plane, fixed) -->
+    <line x1="210" y1="250" x2="250" y2="210"/>
+    <line x1="250" y1="210" x2="290" y2="250"/>
+    <line x1="290" y1="250" x2="250" y2="290"/>
+    <line x1="250" y1="290" x2="210" y2="250"/>
   </g>
 
-  <!-- ========= Pb（Aサイト・角：投影） ========= -->
+  <!-- Pb atoms (A-site, projected corners) -->
   <circle class="pb" cx="200" cy="200" r="8"/>
   <circle class="pb" cx="300" cy="200" r="8"/>
   <circle class="pb" cx="200" cy="300" r="8"/>
   <circle class="pb" cx="300" cy="300" r="8"/>
 
-  <!-- ========= Zr/Ti（Bサイト：主役） ========= -->
+  <!-- B-site (Zr/Ti) -->
   <circle id="bsite" class="b" cx="250" cy="250" r="6.5"/>
 
 </svg>
@@ -103,21 +102,22 @@
 <script>
 let t = 0;
 
+// B-site atom
 const bsite = document.getElementById("bsite");
 
-// 上面4本（動かす：z歪み）
+// Top edges
 const eTL = document.getElementById("e_t_left");
 const eTR = document.getElementById("e_t_right");
 const eTU = document.getElementById("e_t_up");
 const eTD = document.getElementById("e_t_down");
 
-// 下面4本（動かす：z歪み）
+// Bottom edges
 const eBL = document.getElementById("e_b_left");
 const eBR = document.getElementById("e_b_right");
 const eBU = document.getElementById("e_b_up");
 const eBD = document.getElementById("e_b_down");
 
-// 固定点（O原子座標）
+// Fixed oxygen positions
 const O = {
   top:  { x:250, y:180 },
   bot:  { x:250, y:320 },
@@ -127,8 +127,8 @@ const O = {
   down: { x:250, y:290 }
 };
 
-// 線分更新（2点を結ぶ）
-function setLine(line, p1, p2){
+// Helper to update line endpoints
+function setLine(line, p1, p2) {
   line.setAttribute("x1", p1.x);
   line.setAttribute("y1", p1.y);
   line.setAttribute("x2", p2.x);
@@ -138,30 +138,27 @@ function setLine(line, p1, p2){
 setInterval(() => {
   t += 0.05;
 
-  // Bサイトのオフセンタ変位（主役）
+  // B-site off-centering (primary effect)
   const dz = Math.sin(t) * 10;
   bsite.setAttribute("cy", 250 - dz);
 
-  // 八面体の z 方向緩和（受動・小さく・位相遅れ）
+  // Octahedral relaxation along z (secondary, smaller, phase-delayed)
   const relax = Math.sin(t - 0.6) * 3;
 
-  // z歪み：上頂点を少し上へ、下頂点を少し下へ（O原子は固定にしているので“線だけ”動かす）
   const topP = { x: O.top.x, y: O.top.y - relax };
   const botP = { x: O.bot.x, y: O.bot.y + relax };
 
-  // 上面4本
+  // Update top edges
   setLine(eTL, topP, O.left);
   setLine(eTR, topP, O.right);
   setLine(eTU, topP, O.up);
   setLine(eTD, topP, O.down);
 
-  // 下面4本
+  // Update bottom edges
   setLine(eBL, botP, O.left);
   setLine(eBR, botP, O.right);
   setLine(eBU, botP, O.up);
   setLine(eBD, botP, O.down);
-
-  // 赤道4本（xy面）は固定（何もしない）
 
 }, 50);
 </script>
