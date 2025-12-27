@@ -46,9 +46,9 @@ Each demo is self-contained and can be viewed directly in the browser.
   PID response → disturbance → FSM detection → LLM gain re-tuning → target re-tracking.  
   👉 [Open demo](./demo/js-svg/aitl-control-flow.html)
 
-- **Inkjet Droplet Formation Demo (JS + SVG)**  
-  Inkjet droplet generation, flight, and satellite formation visualization using SVG graphics controlled by JavaScript.  
-  👉 [Open demo](./demo/js-svg/inkjet-droplet.html)
+- **PZT Perovskite Unit Cell Demo (JS + SVG)**  
+  Single perovskite unit cell visualization focusing on B-site (Zr/Ti) off-centering inside a rigid O₆ octahedron, with subtle z-direction lattice relaxation.  
+  👉 [Open demo](./demo/js-svg/pzt-perovskite-cell.html)
 
 ---
 
