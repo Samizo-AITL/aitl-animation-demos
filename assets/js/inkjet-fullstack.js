@@ -21,10 +21,11 @@ const duty = 0.25;
 const speed = 0.005;
 
 // 圧力波パラメータ（物理意味あり）
-const reflectDelay = 0.08;     // 流路長（反射遅延）
-const alpha = 10.0;            // 減衰（粘性）
-const omega = 2 * Math.PI * 6; // 共振周波数
-const reflectGain = 0.6;       // 反射係数
+const reflectDelay = 0.08;      // 流路長（反射遅延）
+const alpha = 6.0;              // 減衰（10→6でリンギング可視化）
+const omega = 2 * Math.PI * 10; // 共振周波数（6→10）
+const reflectGain1 = 0.8;       // 1次反射係数
+const reflectGain2 = 0.35;      // 2次反射係数
 
 // ------------------------------------------------------
 // Utility
@@ -61,7 +62,7 @@ function X(t) {
 }
 
 // ------------------------------------------------------
-// 圧力 P(t)：直接波 + 反射波（減衰振動）
+// 圧力 P(t)：直接波 + 1次反射 + 2次反射（減衰振動）
 // ------------------------------------------------------
 function P(t) {
   const ph = frac(t / period);
@@ -70,16 +71,22 @@ function P(t) {
   // イベント：立下り（吐出後）
   const t0 = duty;
 
-  // --- 直接波 ---
+  // 直接波
   const dt0 = ph - t0;
-  if (dt0 > 0 && dt0 < 0.4) {
+  if (dt0 > 0 && dt0 < 0.5) {
     p += -Math.exp(-alpha * dt0) * Math.sin(omega * dt0);
   }
 
-  // --- 反射波 ---
+  // 1次反射
   const dt1 = ph - (t0 + reflectDelay);
-  if (dt1 > 0 && dt1 < 0.4) {
-    p += reflectGain * Math.exp(-alpha * dt1) * Math.sin(omega * dt1);
+  if (dt1 > 0 && dt1 < 0.5) {
+    p += reflectGain1 * Math.exp(-alpha * dt1) * Math.sin(omega * dt1);
+  }
+
+  // 2次反射（往復）
+  const dt2 = ph - (t0 + 2 * reflectDelay);
+  if (dt2 > 0 && dt2 < 0.5) {
+    p += reflectGain2 * Math.exp(-alpha * dt2) * Math.sin(omega * dt2);
   }
 
   return p;
@@ -132,7 +139,7 @@ function draw() {
   axis(80,  "V(t)");
   axis(160, "I(t)");
   axis(240, "Δx(t)");
-  axis(320, "P(t)  (with reflection)");
+  axis(320, "P(t)  (ringing + reflection)");
   axis(400, "Qout");
   axis(460, "Qin");
 
