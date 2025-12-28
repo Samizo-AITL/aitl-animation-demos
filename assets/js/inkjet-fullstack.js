@@ -1,6 +1,7 @@
 // ======================================================
 // Inkjet Full-stack Timing Animation
-// V, I, displacement, pressure(with reflection), Qout, Qin
+// V, I, displacement, pressure (ringing emphasized),
+// Qout, Qin
 // ======================================================
 
 console.log("inkjet-fullstack.js loaded");
@@ -20,12 +21,12 @@ const period = 1.0;
 const duty = 0.25;
 const speed = 0.005;
 
-// 圧力波パラメータ（物理意味あり）
-const reflectDelay = 0.08;      // 流路長（反射遅延）
-const alpha = 6.0;              // 減衰（10→6でリンギング可視化）
-const omega = 2 * Math.PI * 10; // 共振周波数（6→10）
-const reflectGain1 = 0.8;       // 1次反射係数
-const reflectGain2 = 0.35;      // 2次反射係数
+// ===== 圧力波（教材用に強調）=====
+const reflectDelay = 0.08;       // 流路長
+const alpha = 2.5;               // 減衰（かなり弱め）
+const omega = 2 * Math.PI * 14;  // 高めの共振
+const reflectGain1 = 1.0;        // 1次反射（強調）
+const reflectGain2 = 0.6;        // 2次反射
 
 // ------------------------------------------------------
 // Utility
@@ -41,7 +42,7 @@ function V(t) {
   return frac(t / period) < duty ? 1 : 0;
 }
 
-// 見えるように整形した I(t)（dV/dt相当）
+// I(t) = dV/dt を可視化用に整形
 function I(t) {
   const ph = frac(t / period);
   const w = 0.02;
@@ -52,47 +53,45 @@ function I(t) {
     return Math.max(0, 1 - dd / w);
   }
 
-  // 立上り＋ / 立下り−
   return tri(ph, 0.0) - tri(ph, duty);
 }
 
-// 変位 Δx（電圧追従）
+// 変位 Δx
 function X(t) {
   return V(t);
 }
 
 // ------------------------------------------------------
-// 圧力 P(t)：直接波 + 1次反射 + 2次反射（減衰振動）
+// 圧力 P(t)：直接波 + 多重反射（減衰振動）
 // ------------------------------------------------------
 function P(t) {
   const ph = frac(t / period);
   let p = 0;
-
-  // イベント：立下り（吐出後）
   const t0 = duty;
 
-  // 直接波
+  function ring(dt, gain) {
+    return gain * Math.exp(-alpha * dt) * Math.sin(omega * dt);
+  }
+
   const dt0 = ph - t0;
-  if (dt0 > 0 && dt0 < 0.5) {
-    p += -Math.exp(-alpha * dt0) * Math.sin(omega * dt0);
+  if (dt0 > 0 && dt0 < 1.0) {
+    p += -ring(dt0, 1.0);
   }
 
-  // 1次反射
   const dt1 = ph - (t0 + reflectDelay);
-  if (dt1 > 0 && dt1 < 0.5) {
-    p += reflectGain1 * Math.exp(-alpha * dt1) * Math.sin(omega * dt1);
+  if (dt1 > 0 && dt1 < 1.0) {
+    p += ring(dt1, reflectGain1);
   }
 
-  // 2次反射（往復）
   const dt2 = ph - (t0 + 2 * reflectDelay);
-  if (dt2 > 0 && dt2 < 0.5) {
-    p += reflectGain2 * Math.exp(-alpha * dt2) * Math.sin(omega * dt2);
+  if (dt2 > 0 && dt2 < 1.0) {
+    p += ring(dt2, reflectGain2);
   }
 
   return p;
 }
 
-// 吐出・吸引（符号で分離）
+// 吐出・吸引
 function Qout(t) {
   return Math.max(0, P(t));
 }
@@ -135,19 +134,17 @@ function plot(y0, amp, color, fn) {
 function draw() {
   ctx.clearRect(0, 0, W, H);
 
-  // Axes
   axis(80,  "V(t)");
   axis(160, "I(t)");
   axis(240, "Δx(t)");
-  axis(320, "P(t)  (ringing + reflection)");
+  axis(320, "P(t)  (ringing visible)");
   axis(400, "Qout");
   axis(460, "Qin");
 
-  // Waves
   plot(80,  40, "red",    V);
   plot(160, 40, "blue",   I);
   plot(240, 40, "green",  X);
-  plot(320, 40, "purple", P);
+  plot(320, 70, "purple", P);   // ← 振幅強調
   plot(400, 40, "orange", Qout);
   plot(460, 40, "brown",  Qin);
 
