@@ -342,79 +342,84 @@ a different kind of complexity:
 
 > **Causality across electrical, mechanical, and fluid domains.**
 
-This section introduces an animation that visualizes this **full-stack
-time-domain causality** in a simplified but physically consistent manner.
+This section introduces a conceptual animation that visualizes this
+**full-stack time-domain causality** in a simplified but physically
+consistent manner.
 
 ---
 
-## Inkjet Full-stack Timing Animation (Conceptual)
+## Inkjet Full-stack Timing (Conceptual Overview)
 
-The inkjet system involves a tightly coupled sequence:
+An inkjet printhead operates through a tightly coupled sequence:
 
 1. **Electrical drive**  
    Drive voltage waveform $V(t)$ applied to a piezoelectric actuator
+
 2. **Electrical response**  
-   Current $I(t)$ associated with capacitive and dynamic effects
+   Current $I(t)$ associated with capacitive loading and dynamic effects
+
 3. **Mechanical deformation**  
-   Actuator displacement $\Delta x(t)$
+   Actuator displacement $\Delta x(t)$ caused by the piezoelectric strain
+
 4. **Acoustic pressure generation**  
-   Pressure $P(t)$ inside the ink channel
+   Pressure $P(t)$ induced inside the ink channel by rapid volume change
+
 5. **Fluid response**  
-   Ink ejection ($Q_{\text{out}}$) and refill ($Q_{\text{in}}$)
+   Ink ejection ($Q_{\text{out}}$) followed by refill ($Q_{\text{in}}$)
 
-Unlike PID control, this process is **largely open-loop** and relies on
-precise **timing alignment** rather than feedback correction.
-
----
-
-## Why Timing Matters More Than Feedback
-
-In inkjet actuation:
-
-- Pressure waves **reflect** inside the ink channel
-- Mechanical motion and fluid inertia introduce **phase delays**
-- Improper timing leads to:
-  - weak ejection,
-  - satellite droplets,
-  - or misfiring
-
-These effects cannot be understood from a single waveform alone.
-
-The animation therefore displays **all relevant signals stacked on a
-common time axis**, making their causal relationships explicit.
+All signals are aligned on a **common time axis**, making the causal
+relationships explicit.
 
 ---
 
-## Design Philosophy of This Animation
+## Why Timing Dominates Over Feedback
 
-This visualization is intentionally:
+Unlike classical control systems:
+
+- Inkjet actuation is largely **open-loop**
+- There is no time for feedback correction during droplet ejection
+- Pressure waves **reflect and interfere** inside the ink channel
+
+As a result, performance depends primarily on **timing alignment**:
+
+- drive pulse edges,
+- mechanical response delay,
+- acoustic propagation and reflection,
+- and fluid inertia.
+
+Improper timing leads to:
+- weak ejection,
+- satellite droplets,
+- or complete misfiring.
+
+These failure modes cannot be understood from any single waveform alone.
+
+---
+
+## Design Philosophy of the Visualization
+
+This animation is intentionally designed as:
 
 - **Qualitative, not CFD-based**
 - **Causality-focused, not parameter-accurate**
 - **Minimal, not feature-complete**
 
-The goal is to provide a **baseline reference** that answers questions like:
+The default waveform represents a **well-damped, properly designed
+operating condition**, rather than a pathological or exaggerated case.
 
-- *Which signal causes which response?*
-- *Where does pressure originate in time?*
-- *How does ejection relate to mechanical motion?*
-
-Rather than exaggerating instability, the default waveform represents a
-**well-damped, properly designed operating condition**.
-
-Pathological cases—such as excessive reflection or mistuned pulses—are
-better discussed as **separate comparative demos**.
+This makes the animation suitable as a **baseline reference**, from which
+unstable or mistuned cases can be discussed separately.
 
 ---
 
-## Relation to Control Concepts
+## Relation to Control Theory
 
 Although no feedback loop is shown:
 
-- The **timing sensitivity** of inkjet actuation mirrors the role of
-  derivative action in PID control
-- Pressure ringing plays a role analogous to **underdamped dynamics**
-- Drive waveform shaping acts as a form of **feedforward control**
+- The sensitivity to timing mirrors the role of **derivative action** in
+  PID control
+- Pressure ringing corresponds to **underdamped system dynamics**
+- Drive waveform shaping functions as **feedforward control**
 
 In this sense, inkjet waveform design can be viewed as a
 **physics-driven feedforward control problem**, rather than a classical
@@ -422,32 +427,27 @@ feedback one.
 
 ---
 
-## Intended Use
+## Position Within AITL Concepts
 
-This animation is designed for:
+This visualization complements the PID animations by addressing systems
+where:
 
-- architectural explanation,
-- cross-domain communication,
-- and educational insight.
+- stability is achieved structurally rather than algorithmically,
+- behavior is determined by **architecture and timing**, not gain tuning,
+- and understanding **cross-domain causality** is essential.
 
-It is **not** intended for:
-- numerical prediction,
-- parameter extraction,
-- or design sign-off.
+It therefore serves as a conceptual bridge between:
 
-Instead, it serves as a **conceptual bridge** between
-control theory, electromechanics, and fluid dynamics.
+- control theory,
+- electromechanical actuation,
+- and fluid dynamics,
 
----
-
-👉 **Open the Inkjet Full-stack Timing Demo**  
-[Open demo](./demo/canvas/inkjet-fullstack.html)
+all within the broader AITL perspective.
 
 ---
 
-*This animation complements the PID demos by highlighting systems where
-understanding time-domain causality is more critical than feedback gain
-tuning.*
+*This section is intended for architectural understanding and physical
+intuition, not for numerical prediction or design validation.*
 
 ---
 
