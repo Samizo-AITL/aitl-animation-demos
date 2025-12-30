@@ -21,7 +21,6 @@
 html, body{
   margin:0;
   padding:0;
-  min-height:100vh;
   background:
     radial-gradient(1200px 700px at 50% -10%, rgba(56,189,248,.12), transparent 55%),
     radial-gradient(900px 600px at 15% 10%, rgba(34,197,94,.08), transparent 55%),
@@ -31,13 +30,11 @@ html, body{
   font-family:ui-monospace, Menlo, Consolas, monospace;
 }
 
+/* 🔴 min-height を完全に削除 */
 .wrap{
   max-width:980px;
   margin:0 auto;
   padding:14px;
-  min-height:100vh;
-  display:flex;
-  flex-direction:column;
 }
 
 h1{
@@ -233,6 +230,7 @@ const X=i=>X0+(i/(N-1))*W;
 const Y=v=>Y0+H-(v*H);
 
 function path(p,n){
+  if(n<2) return "";
   return "M "+p.slice(0,n).map(q=>q.x+" "+q.y).join(" L ");
 }
 
@@ -270,7 +268,11 @@ function step(){
   setPath.setAttribute("d",path(sx,i+1));
 
   i++;
-  if(i>=N){i=0;Kp=0.9;llm=false;px.length=0;sx.length=0;llmEl.textContent="idle";}
+  if(i>=N){
+    i=0;Kp=0.9;llm=false;
+    px.length=0;sx.length=0;
+    llmEl.textContent="idle";
+  }
   requestAnimationFrame(step);
 }
 step();
