@@ -1,31 +1,37 @@
 // FSM Visualizer (Event-Driven)
-// ----------------------------
 
 console.log("FSM visualizer loaded");
 
-// current FSM state
+// FSM state
 let current = "IDLE";
 
-// wait until DOM is ready (important for iframe + GitHub Pages)
 window.addEventListener("DOMContentLoaded", () => {
-  const startBtn = document.getElementById("startBtn");
-  if (startBtn) {
-    startBtn.addEventListener("click", sendEvent);
-  } else {
-    console.error("START button not found");
-  }
+  document.getElementById("startBtn")
+    .addEventListener("click", sendStart);
+
+  document.getElementById("resetBtn")
+    .addEventListener("click", resetFSM);
 });
 
-// send START event
-function sendEvent() {
-  // START is valid only in IDLE
+// START event
+function sendStart() {
   if (current !== "IDLE") {
     rejectEvent();
     return;
   }
+  animateEvent("RUN");
+}
 
+// RESET event (external / supervisory)
+function resetFSM() {
+  transitionTo("IDLE");
+}
+
+// event animation
+function animateEvent(next) {
   const e = document.getElementById("event");
   e.setAttribute("visibility", "visible");
+  e.setAttribute("fill", "#ffcc00");
   e.setAttribute("cx", 200);
 
   let x = 200;
@@ -36,33 +42,29 @@ function sendEvent() {
     if (x >= 400) {
       clearInterval(timer);
       e.setAttribute("visibility", "hidden");
-      transitionTo("RUN");
+      transitionTo(next);
     }
   }, 20);
 }
 
 // state transition
 function transitionTo(next) {
-  const currentNode = document.getElementById(current);
-  const nextNode = document.getElementById(next);
-
-  if (currentNode) currentNode.classList.remove("active");
-  if (nextNode) nextNode.classList.add("active");
-
+  document.getElementById(current).classList.remove("active");
+  document.getElementById(next).classList.add("active");
   current = next;
-  console.log("FSM state changed to:", current);
+  console.log("FSM state:", current);
 }
 
-// visual rejection for invalid events
+// rejected event visualization
 function rejectEvent() {
   const e = document.getElementById("event");
   e.setAttribute("visibility", "visible");
+  e.setAttribute("fill", "#ff4444");
   e.setAttribute("cx", 200);
-  e.setAttribute("fill", "#ff4444"); // red = rejected
 
   setTimeout(() => {
     e.setAttribute("visibility", "hidden");
-    e.setAttribute("fill", "#ffcc00"); // restore color
+    e.setAttribute("fill", "#ffcc00");
   }, 300);
 
   console.log("Event rejected in state:", current);
