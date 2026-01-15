@@ -6,39 +6,43 @@
 
 <style>
   body {
-    background: #111;
-    color: #eee;
-    text-align: center;
-    margin: 0;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    background:#111;
+    color:#eee;
+    text-align:center;
+    margin:0;
+    font-family: system-ui, sans-serif;
   }
 
-  svg {
-    width: 600px;
-    height: 400px;
-    display: block;
-    margin: 0 auto;
-  }
+  svg { width:600px; height:360px; margin:auto; display:block; }
 
   .state { fill:#333; stroke:#888; stroke-width:2; }
   .active { fill:#1e90ff; }
   .transition { stroke:#666; stroke-width:2; fill:none; marker-end:url(#arrow); }
   .event { fill:#ffcc00; }
 
-  button {
-    margin: 6px;
-    padding: 6px 14px;
+  button { margin:6px; padding:6px 14px; }
+
+  table {
+    margin: 12px auto;
+    border-collapse: collapse;
     font-size: 14px;
-    cursor: pointer;
   }
+
+  th, td {
+    border: 1px solid #555;
+    padding: 6px 10px;
+  }
+
+  th { background:#222; }
+  .highlight { background:#1e90ff; color:#000; }
 </style>
 </head>
 
 <body>
 
-<h2>FSM Mechanism (Event-Driven)</h2>
+<h2>FSM Visualizer — Transition Table Driven</h2>
 
-<svg viewBox="0 0 600 400">
+<svg viewBox="0 0 600 360">
   <defs>
     <marker id="arrow" markerWidth="10" markerHeight="10"
       refX="10" refY="5" orient="auto">
@@ -46,25 +50,46 @@
     </marker>
   </defs>
 
-  <!-- Transition -->
-  <path class="transition" d="M240,200 L360,200"/>
+  <path class="transition" d="M240,180 L360,180"/>
 
-  <!-- States -->
-  <circle id="IDLE" class="state active" cx="200" cy="200" r="40"/>
-  <text x="200" y="205" text-anchor="middle" fill="#eee">IDLE</text>
+  <circle id="IDLE" class="state active" cx="200" cy="180" r="40"/>
+  <text x="200" y="185" text-anchor="middle" fill="#eee">IDLE</text>
 
-  <circle id="RUN" class="state" cx="400" cy="200" r="40"/>
-  <text x="400" y="205" text-anchor="middle" fill="#eee">RUN</text>
+  <circle id="RUN" class="state" cx="400" cy="180" r="40"/>
+  <text x="400" y="185" text-anchor="middle" fill="#eee">RUN</text>
 
-  <!-- Event particle -->
-  <circle id="event" class="event" cx="200" cy="200" r="6"
+  <circle id="event" class="event" cx="200" cy="180" r="6"
     visibility="hidden"/>
 </svg>
 
 <div>
-  <button id="startBtn">Send START event</button>
-  <button id="resetBtn">RESET (Force IDLE)</button>
+  <button data-event="START">START</button>
+  <button data-event="STOP">STOP</button>
+  <button data-event="RESET">RESET</button>
 </div>
+
+<h3>FSM Transition Table</h3>
+
+<table id="fsmTable">
+  <tr>
+    <th>State \\ Event</th>
+    <th>START</th>
+    <th>STOP</th>
+    <th>RESET</th>
+  </tr>
+  <tr>
+    <th>IDLE</th>
+    <td>RUN</td>
+    <td>—</td>
+    <td>IDLE</td>
+  </tr>
+  <tr>
+    <th>RUN</th>
+    <td>—</td>
+    <td>IDLE</td>
+    <td>IDLE</td>
+  </tr>
+</table>
 
 <script src="../../assets/js/fsm-visualizer.js"></script>
 </body>
