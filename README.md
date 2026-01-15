@@ -329,6 +329,88 @@ and control intuition, rather than parameter tuning or model accuracy.
 
 ---
 
+## FSM (Finite State Machine): Event-Driven Control Logic
+
+PID control explains **continuous-time behavior**  
+(voltage–current dynamics and transient response).
+
+FSM governs **discrete decision logic**:
+
+> *Is this action allowed now?*  
+> *Should the control mode change?*
+
+PID answers **“how strongly to act”**,  
+FSM answers **“whether the action is permitted.”**
+
+---
+
+## FSM Visualizer — Discrete State Transition Mechanism
+
+Below is an **embedded FSM animation**.  
+The animation runs **directly on this page**.
+
+<iframe
+  src="./demo/js-svg/fsm-visualizer.html"
+  width="720"
+  height="480"
+  style="border:1px solid #444; border-radius:8px; background:#111;"
+  loading="lazy"
+></iframe>
+
+---
+
+### How to read this animation
+
+- The system is **always in exactly one state**
+- **Events** arrive from outside
+- A state transition occurs **only if**
+  - the event is defined for the current state, and
+  - the transition condition is satisfied
+- Invalid events are **rejected** and cause **no state change**
+
+| Visual element | Meaning |
+|---|---|
+| Circle | State |
+| Highlighted circle | Active state |
+| Arrow | Allowed transition |
+| Moving particle | Incoming event |
+| Disappearing particle | Invalid / rejected event |
+
+This demonstrates the core FSM rule:
+
+> **State transitions are discrete, conditional, and event-triggered.**
+
+---
+
+## Why FSM Is Required Beyond PID
+
+PID:
+- Always reacts
+- Always outputs a control signal
+- Cannot decide *whether* it should act
+
+FSM:
+- Separates modes (IDLE / RUN / ERROR / RECOVERY)
+- Enforces safety and permissions
+- Guarantees deterministic behavior
+
+> **PID controls motion.  
+> FSM controls permission.**
+
+---
+
+## Position of FSM in AITL Architecture
+
+- **PID** — inner continuous-time loop  
+- **FSM** — supervisory discrete logic  
+- **LLM** — outer adaptive layer (rewrites rules or gains)
+
+The embedded FSM animation above is the **bridge**
+between time-domain PID intuition
+and full AITL control flow.
+
+---
+
 ## Notes
 
 - These demos are **experimental** and may change without notice.
