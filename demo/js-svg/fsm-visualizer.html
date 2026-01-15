@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>FSM Visualizer</title>
+<style>
+  body { background:#111; color:#eee; text-align:center; }
+  svg { width:600px; height:400px; }
+
+  .state { fill:#333; stroke:#888; stroke-width:2; }
+  .active { fill:#1e90ff; }
+  .transition { stroke:#666; stroke-width:2; fill:none; marker-end:url(#arrow); }
+  .event { fill:#ffcc00; }
+</style>
+</head>
+
+<body>
+<h2>FSM のからくり（イベント駆動）</h2>
+
+<svg viewBox="0 0 600 400">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="10" refY="5"
+      orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#666"/>
+    </marker>
+  </defs>
+
+  <!-- Transitions -->
+  <path class="transition" d="M200,200 L400,200"/>
+
+  <!-- States -->
+  <circle id="IDLE" class="state active" cx="200" cy="200" r="40"/>
+  <text x="200" y="205" text-anchor="middle">IDLE</text>
+
+  <circle id="RUN" class="state" cx="400" cy="200" r="40"/>
+  <text x="400" y="205" text-anchor="middle">RUN</text>
+
+  <!-- Event -->
+  <circle id="event" class="event" cx="200" cy="200" r="6" visibility="hidden"/>
+</svg>
+
+<button onclick="sendEvent()">start イベント</button>
+
+<script src="../assets/fsm-visualizer.js"></script>
+</body>
+</html>
