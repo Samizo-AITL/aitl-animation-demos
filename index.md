@@ -436,7 +436,7 @@ and full AITL control flow.
 
 ## 📄 License
 
-[![Hybrid License](https://img.shields.io/badge/license-Hybrid-blueviolet)](https://samizo-aitl.github.io/aitl-animation-demos//#-license)
+[![Hybrid License](https://img.shields.io/badge/license-Hybrid-blueviolet)](https://samizo-aitl.github.io/aitl-animation-demos/#---license)
 
 | 📌 Item | License | Description |
 |--------|---------|-------------|
