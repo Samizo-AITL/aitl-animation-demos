@@ -25,7 +25,7 @@ html, body {
   width: 100vw;
   height: 100vh;
   display: grid;
-  grid-template-rows: 2.2fr 1fr;
+  grid-template-rows: 2.2fr 1fr; /* top: FSM, bottom: table */
 }
 
 /* =====================================================
@@ -33,7 +33,7 @@ html, body {
 ===================================================== */
 .viz {
   display: grid;
-  grid-template-rows: auto 1fr auto; /* ★ これが正解 */
+  grid-template-rows: auto 1fr auto; /* title / svg / buttons */
   justify-items: center;
   align-items: center;
   padding-bottom: 8px;
@@ -45,11 +45,11 @@ html, body {
   font-weight: 600;
 }
 
-/* SVG: 高さを支配させない */
+/* ★ SVG size control: HALF SIZE (layout-safe) */
 svg {
-  width: 100%;
-  max-width: 900px;
-  height: auto;          /* ★ 100% 禁止 */
+  width: 50%;            /* ← 半分 */
+  max-width: 480px;      /* 上限 */
+  height: auto;          /* 縦は比率維持 */
   display: block;
 }
 
@@ -194,7 +194,7 @@ th {
 
 <script>
 /* =====================================
-   FSM logic (unchanged)
+   FSM logic
 ===================================== */
 const FSM = {
   IDLE: { START: "RUN", RESET: "IDLE" },
