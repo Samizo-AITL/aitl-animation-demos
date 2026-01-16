@@ -353,12 +353,14 @@ Below is an **embedded FSM animation**.
 The animation runs **directly on this page**.
 
 <iframe
-  src="./demo/js-svg/fsm-visualizer.html"
-  width="720"
-  height="480"
-  style="border:1px solid #444; border-radius:8px; background:#111;"
-  loading="lazy"
-></iframe>
+  src="demo/js-svg/fsm-visualizer.html"
+  style="
+    width:100%;
+    height:100vh;
+    border:none;
+    display:block;
+  ">
+</iframe>
 
 ---
 
