@@ -356,7 +356,7 @@ The animation runs **directly on this page**.
   src="demo/js-svg/fsm-visualizer.html"
   style="
     width:60%;
-    height:100vh;
+    height:60vh;
     border:none;
     display:block;
   ">
