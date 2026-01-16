@@ -1,8 +1,8 @@
 console.log("FSM visualizer loaded");
 
-// -----------------------------
-// FSM transition table
-// -----------------------------
+// =====================================
+// FSM transition table (definition)
+// =====================================
 const FSM = {
   IDLE: {
     START: "RUN",
@@ -14,11 +14,23 @@ const FSM = {
   }
 };
 
-let current = "IDLE";
+let currentState = "IDLE";
 
-// -----------------------------
+// =====================================
+// SVG coordinates (viewBox based)
+// =====================================
+const POS = {
+  IDLE_X: 200,
+  RUN_X: 400,
+  Y: 180
+};
+
+const EVENT_SPEED = 5;
+const EVENT_INTERVAL = 20;
+
+// =====================================
 // DOM ready
-// -----------------------------
+// =====================================
 window.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll("button[data-event]").forEach(btn => {
     btn.addEventListener("click", () => {
@@ -27,83 +39,101 @@ window.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-// -----------------------------
+// =====================================
 // FSM dispatcher
-// -----------------------------
+// =====================================
 function dispatch(event) {
-  const next = FSM[current]?.[event];
+  const next = FSM[currentState]?.[event];
+
+  clearTableHighlight();
 
   if (!next) {
     rejectEvent();
+    console.log("Rejected event:", event, "in state:", currentState);
     return;
   }
 
+  highlightTable(currentState, event);
   animateEvent(next);
-  highlightTable(current, event);
 }
 
-// -----------------------------
-// Animation
-// -----------------------------
-function animateEvent(next) {
+// =====================================
+// Animation: event token movement
+// =====================================
+function animateEvent(nextState) {
   const e = document.getElementById("event");
+
   e.setAttribute("visibility", "visible");
   e.setAttribute("fill", "#ffcc00");
-  e.setAttribute("cx", 200);
+  e.setAttribute("cx", POS.IDLE_X);
+  e.setAttribute("cy", POS.Y);
 
-  let x = 200;
+  let x = POS.IDLE_X;
+
   const timer = setInterval(() => {
-    x += 5;
+    x += EVENT_SPEED;
     e.setAttribute("cx", x);
 
-    if (x >= 400) {
+    if (x >= POS.RUN_X) {
       clearInterval(timer);
       e.setAttribute("visibility", "hidden");
-      transitionTo(next);
+      transitionTo(nextState);
     }
-  }, 20);
+  }, EVENT_INTERVAL);
 }
 
-function transitionTo(next) {
-  document.getElementById(current).classList.remove("active");
-  document.getElementById(next).classList.add("active");
-  current = next;
-  console.log("FSM state =", current);
+// =====================================
+// State transition
+// =====================================
+function transitionTo(nextState) {
+  document.getElementById(currentState)
+    .classList.remove("active");
+
+  document.getElementById(nextState)
+    .classList.add("active");
+
+  currentState = nextState;
+  console.log("FSM state =", currentState);
 }
 
-// -----------------------------
-// Reject visualization
-// -----------------------------
+// =====================================
+// Reject visualization (invalid event)
+// =====================================
 function rejectEvent() {
   const e = document.getElementById("event");
+
   e.setAttribute("visibility", "visible");
   e.setAttribute("fill", "#ff4444");
+  e.setAttribute("cx", POS.IDLE_X);
+  e.setAttribute("cy", POS.Y);
 
   setTimeout(() => {
     e.setAttribute("visibility", "hidden");
     e.setAttribute("fill", "#ffcc00");
   }, 300);
-
-  console.log("Rejected event in state:", current);
 }
 
-// -----------------------------
+// =====================================
 // Transition table highlight
-// -----------------------------
-function highlightTable(state, event) {
+// =====================================
+function clearTableHighlight() {
   document.querySelectorAll(".highlight")
     .forEach(td => td.classList.remove("highlight"));
+}
 
+function highlightTable(state, event) {
   const table = document.getElementById("fsmTable");
-  const stateRow = [...table.rows]
-    .find(r => r.cells[0]?.innerText === state);
+  if (!table) return;
 
+  const rows = [...table.rows];
+  const header = rows[0];
+  const stateRow = rows.find(r => r.cells[0]?.innerText === state);
   if (!stateRow) return;
 
-  const headers = [...table.rows[0].cells];
-  const col = headers.findIndex(h => h.innerText === event);
+  const colIndex = [...header.cells]
+    .findIndex(h => h.innerText === event);
 
-  if (col > 0) {
-    stateRow.cells[col].classList.add("highlight");
+  if (colIndex > 0) {
+    stateRow.cells[colIndex].classList.add("highlight");
   }
 }
