@@ -6,11 +6,11 @@
 
 <style>
 /* =====================================================
-   Global / Fullscreen
+   Global / Fullscreen (GitHub Pages safe)
 ===================================================== */
 html, body {
   width: 100%;
-  height: 100%;
+  height: 100vh;          /* ★ 100% は使わない */
   margin: 0;
   overflow: hidden;
   background: #111;
@@ -19,13 +19,13 @@ html, body {
 }
 
 /* =====================================================
-   App Layout (FSM is the hero)
+   App Layout
 ===================================================== */
 .app {
-  height: 100vh;
   width: 100vw;
+  height: 100vh;
   display: grid;
-  grid-template-rows: 2.2fr 1fr; /* FSM emphasized */
+  grid-template-rows: 2.2fr 1fr;  /* FSM is the hero */
 }
 
 /* =====================================================
@@ -34,22 +34,20 @@ html, body {
 .viz {
   display: grid;
   grid-template-rows: auto 1fr auto;
-  align-items: center;
   justify-items: center;
+  align-items: center;
 }
 
 .title {
-  margin: 12px 0 4px;
+  margin-top: 12px;
   font-size: 20px;
   font-weight: 600;
 }
 
-/* SVG should fill available space */
+/* SVG must fill available space */
 svg {
   width: 100%;
   height: 100%;
-  max-width: none;
-  max-height: none;
   display: block;
 }
 
@@ -74,7 +72,7 @@ svg {
 
 /* Controls */
 .controls {
-  margin: 10px 0 14px;
+  margin-bottom: 14px;
 }
 button {
   margin: 0 6px;
@@ -102,7 +100,6 @@ button {
   padding: 10px 0;
   font-size: 14px;
   font-weight: 600;
-  opacity: 0.9;
 }
 
 table {
@@ -193,6 +190,129 @@ th {
 
 </div>
 
-<script src="../../assets/js/fsm-visualizer.js"></script>
+<script>
+console.log("FSM visualizer loaded");
+
+/* =====================================
+   FSM definition
+===================================== */
+const FSM = {
+  IDLE: {
+    START: "RUN",
+    RESET: "IDLE"
+  },
+  RUN: {
+    STOP: "IDLE",
+    RESET: "IDLE"
+  }
+};
+
+let currentState = "IDLE";
+
+/* SVG coordinates (viewBox based) */
+const POS = {
+  IDLE_X: 200,
+  RUN_X: 400,
+  Y: 180
+};
+
+const SPEED = 5;
+const INTERVAL = 20;
+
+/* =====================================
+   DOM ready
+===================================== */
+window.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll("button[data-event]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      dispatch(btn.dataset.event);
+    });
+  });
+});
+
+/* =====================================
+   FSM dispatcher
+===================================== */
+function dispatch(event) {
+  clearHighlight();
+
+  const next = FSM[currentState]?.[event];
+  if (!next) {
+    rejectEvent();
+    return;
+  }
+
+  highlightTable(currentState, event);
+  animateEvent(next);
+}
+
+/* =====================================
+   Animation
+===================================== */
+function animateEvent(nextState) {
+  const e = document.getElementById("event");
+  e.setAttribute("visibility", "visible");
+  e.setAttribute("fill", "#ffcc00");
+  e.setAttribute("cx", POS.IDLE_X);
+  e.setAttribute("cy", POS.Y);
+
+  let x = POS.IDLE_X;
+  const timer = setInterval(() => {
+    x += SPEED;
+    e.setAttribute("cx", x);
+
+    if (x >= POS.RUN_X) {
+      clearInterval(timer);
+      e.setAttribute("visibility", "hidden");
+      transitionTo(nextState);
+    }
+  }, INTERVAL);
+}
+
+function transitionTo(next) {
+  document.getElementById(currentState).classList.remove("active");
+  document.getElementById(next).classList.add("active");
+  currentState = next;
+  console.log("FSM state =", currentState);
+}
+
+/* =====================================
+   Reject visualization
+===================================== */
+function rejectEvent() {
+  const e = document.getElementById("event");
+  e.setAttribute("visibility", "visible");
+  e.setAttribute("fill", "#ff4444");
+
+  setTimeout(() => {
+    e.setAttribute("visibility", "hidden");
+    e.setAttribute("fill", "#ffcc00");
+  }, 300);
+
+  console.log("Rejected event in state:", currentState);
+}
+
+/* =====================================
+   Table highlight
+===================================== */
+function clearHighlight() {
+  document.querySelectorAll(".highlight")
+    .forEach(td => td.classList.remove("highlight"));
+}
+
+function highlightTable(state, event) {
+  const table = document.getElementById("fsmTable");
+  const rows = [...table.rows];
+  const header = rows[0];
+  const stateRow = rows.find(r => r.cells[0]?.innerText === state);
+  if (!stateRow) return;
+
+  const col = [...header.cells].findIndex(h => h.innerText === event);
+  if (col > 0) {
+    stateRow.cells[col].classList.add("highlight");
+  }
+}
+</script>
+
 </body>
 </html>
