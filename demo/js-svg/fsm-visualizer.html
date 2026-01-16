@@ -5,91 +5,167 @@
 <title>FSM Visualizer</title>
 
 <style>
-  body {
-    background:#111;
-    color:#eee;
-    text-align:center;
-    margin:0;
+  /* ===== Global reset / fullscreen ===== */
+  html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;          /* ← no page scroll */
+    background: #111;
+    color: #eee;
     font-family: system-ui, sans-serif;
   }
 
-  svg { width:600px; height:360px; margin:auto; display:block; }
+  /* ===== App layout ===== */
+  .app {
+    height: 100vh;
+    width: 100vw;
+    display: grid;
+    grid-template-rows: 1fr 260px; /* bottom = transition table */
+  }
 
+  /* ===== Top visualization area ===== */
+  .viz {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+  }
+
+  .title {
+    margin: 12px 0 4px;
+    font-size: 20px;
+    font-weight: 600;
+  }
+
+  svg {
+    width: 100%;
+    max-width: 720px;
+    height: auto;
+    aspect-ratio: 5 / 3;
+    display: block;
+  }
+
+  /* ===== FSM styles ===== */
   .state { fill:#333; stroke:#888; stroke-width:2; }
   .active { fill:#1e90ff; }
   .transition { stroke:#666; stroke-width:2; fill:none; marker-end:url(#arrow); }
   .event { fill:#ffcc00; }
 
-  button { margin:6px; padding:6px 14px; }
+  /* ===== Controls ===== */
+  .controls {
+    margin: 8px 0 12px;
+  }
+
+  button {
+    margin: 0 6px;
+    padding: 6px 16px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  /* ===== Bottom table area ===== */
+  .table-panel {
+    min-height: 0;
+    overflow: auto;            /* scroll ONLY inside table area */
+    border-top: 1px solid #333;
+    background: #0d0d0d;
+  }
+
+  .table-title {
+    text-align: left;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-weight: 600;
+    opacity: 0.9;
+  }
 
   table {
-    margin: 12px auto;
+    margin: 0 auto 14px;
     border-collapse: collapse;
     font-size: 14px;
   }
 
   th, td {
     border: 1px solid #555;
-    padding: 6px 10px;
+    padding: 6px 12px;
+    text-align: center;
   }
 
-  th { background:#222; }
-  .highlight { background:#1e90ff; color:#000; }
+  th {
+    background:#222;
+  }
+
+  .highlight {
+    background:#1e90ff;
+    color:#000;
+  }
 </style>
 </head>
 
 <body>
 
-<h2>FSM Visualizer — Transition Table Driven</h2>
+<div class="app">
 
-<svg viewBox="0 0 600 360">
-  <defs>
-    <marker id="arrow" markerWidth="10" markerHeight="10"
-      refX="10" refY="5" orient="auto">
-      <path d="M0,0 L10,5 L0,10 z" fill="#666"/>
-    </marker>
-  </defs>
+  <!-- ================= Visualization ================= -->
+  <div class="viz">
+    <div class="title">FSM Visualizer — Transition Table Driven</div>
 
-  <path class="transition" d="M240,180 L360,180"/>
+    <svg viewBox="0 0 600 360" aria-label="FSM diagram">
+      <defs>
+        <marker id="arrow" markerWidth="10" markerHeight="10"
+          refX="10" refY="5" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="#666"/>
+        </marker>
+      </defs>
 
-  <circle id="IDLE" class="state active" cx="200" cy="180" r="40"/>
-  <text x="200" y="185" text-anchor="middle" fill="#eee">IDLE</text>
+      <path class="transition" d="M240,180 L360,180"/>
 
-  <circle id="RUN" class="state" cx="400" cy="180" r="40"/>
-  <text x="400" y="185" text-anchor="middle" fill="#eee">RUN</text>
+      <circle id="IDLE" class="state active" cx="200" cy="180" r="40"/>
+      <text x="200" y="185" text-anchor="middle" fill="#eee">IDLE</text>
 
-  <circle id="event" class="event" cx="200" cy="180" r="6"
-    visibility="hidden"/>
-</svg>
+      <circle id="RUN" class="state" cx="400" cy="180" r="40"/>
+      <text x="400" y="185" text-anchor="middle" fill="#eee">RUN</text>
 
-<div>
-  <button data-event="START">START</button>
-  <button data-event="STOP">STOP</button>
-  <button data-event="RESET">RESET</button>
+      <circle id="event" class="event" cx="200" cy="180" r="6"
+        visibility="hidden"/>
+    </svg>
+
+    <div class="controls">
+      <button data-event="START">START</button>
+      <button data-event="STOP">STOP</button>
+      <button data-event="RESET">RESET</button>
+    </div>
+  </div>
+
+  <!-- ================= Transition Table ================= -->
+  <div class="table-panel">
+    <div class="table-title">FSM Transition Table</div>
+
+    <table id="fsmTable">
+      <tr>
+        <th>State \\ Event</th>
+        <th>START</th>
+        <th>STOP</th>
+        <th>RESET</th>
+      </tr>
+      <tr>
+        <th>IDLE</th>
+        <td>RUN</td>
+        <td>—</td>
+        <td>IDLE</td>
+      </tr>
+      <tr>
+        <th>RUN</th>
+        <td>—</td>
+        <td>IDLE</td>
+        <td>IDLE</td>
+      </tr>
+    </table>
+  </div>
+
 </div>
-
-<h3>FSM Transition Table</h3>
-
-<table id="fsmTable">
-  <tr>
-    <th>State \\ Event</th>
-    <th>START</th>
-    <th>STOP</th>
-    <th>RESET</th>
-  </tr>
-  <tr>
-    <th>IDLE</th>
-    <td>RUN</td>
-    <td>—</td>
-    <td>IDLE</td>
-  </tr>
-  <tr>
-    <th>RUN</th>
-    <td>—</td>
-    <td>IDLE</td>
-    <td>IDLE</td>
-  </tr>
-</table>
 
 <script src="../../assets/js/fsm-visualizer.js"></script>
 </body>
