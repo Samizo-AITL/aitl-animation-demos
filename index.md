@@ -355,8 +355,8 @@ The animation runs **directly on this page**.
 <iframe
   src="demo/js-svg/fsm-visualizer.html"
   style="
-    width:60%;
-    height:60vh;
+    width:100%;
+    height:100vh;
     border:none;
     display:block;
   ">
