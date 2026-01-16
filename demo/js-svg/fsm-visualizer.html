@@ -5,102 +5,128 @@
 <title>FSM Visualizer</title>
 
 <style>
-  /* ===== Global reset / fullscreen ===== */
-  html, body {
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    overflow: hidden;          /* ← no page scroll */
-    background: #111;
-    color: #eee;
-    font-family: system-ui, sans-serif;
-  }
+/* =====================================================
+   Global / Fullscreen
+===================================================== */
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: #111;
+  color: #eee;
+  font-family: system-ui, sans-serif;
+}
 
-  /* ===== App layout ===== */
-  .app {
-    height: 100vh;
-    width: 100vw;
-    display: grid;
-    grid-template-rows: 1fr 260px; /* bottom = transition table */
-  }
+/* =====================================================
+   App Layout (FSM is the hero)
+===================================================== */
+.app {
+  height: 100vh;
+  width: 100vw;
+  display: grid;
+  grid-template-rows: 2.2fr 1fr; /* FSM emphasized */
+}
 
-  /* ===== Top visualization area ===== */
-  .viz {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 0;
-  }
+/* =====================================================
+   FSM Visualization Area
+===================================================== */
+.viz {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  align-items: center;
+  justify-items: center;
+}
 
-  .title {
-    margin: 12px 0 4px;
-    font-size: 20px;
-    font-weight: 600;
-  }
+.title {
+  margin: 12px 0 4px;
+  font-size: 20px;
+  font-weight: 600;
+}
 
-  svg {
-    width: 100%;
-    max-width: 720px;
-    height: auto;
-    aspect-ratio: 5 / 3;
-    display: block;
-  }
+/* SVG should fill available space */
+svg {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  display: block;
+}
 
-  /* ===== FSM styles ===== */
-  .state { fill:#333; stroke:#888; stroke-width:2; }
-  .active { fill:#1e90ff; }
-  .transition { stroke:#666; stroke-width:2; fill:none; marker-end:url(#arrow); }
-  .event { fill:#ffcc00; }
+/* FSM graphics */
+.state {
+  fill: #333;
+  stroke: #888;
+  stroke-width: 2;
+}
+.active {
+  fill: #1e90ff;
+}
+.transition {
+  stroke: #666;
+  stroke-width: 2;
+  fill: none;
+  marker-end: url(#arrow);
+}
+.event {
+  fill: #ffcc00;
+}
 
-  /* ===== Controls ===== */
-  .controls {
-    margin: 8px 0 12px;
-  }
+/* Controls */
+.controls {
+  margin: 10px 0 14px;
+}
+button {
+  margin: 0 6px;
+  padding: 6px 16px;
+  font-size: 14px;
+  cursor: pointer;
+}
 
-  button {
-    margin: 0 6px;
-    padding: 6px 16px;
-    font-size: 14px;
-    cursor: pointer;
-  }
+/* =====================================================
+   Transition Table Area
+===================================================== */
+.table-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: auto;
+  border-top: 1px solid #333;
+  background: #0d0d0d;
+}
 
-  /* ===== Bottom table area ===== */
-  .table-panel {
-    min-height: 0;
-    overflow: auto;            /* scroll ONLY inside table area */
-    border-top: 1px solid #333;
-    background: #0d0d0d;
-  }
+.table-title {
+  width: 100%;
+  max-width: 720px;
+  text-align: left;
+  padding: 10px 0;
+  font-size: 14px;
+  font-weight: 600;
+  opacity: 0.9;
+}
 
-  .table-title {
-    text-align: left;
-    padding: 10px 14px;
-    font-size: 14px;
-    font-weight: 600;
-    opacity: 0.9;
-  }
+table {
+  width: 100%;
+  max-width: 720px;
+  border-collapse: collapse;
+  font-size: 14px;
+  margin-bottom: 14px;
+}
 
-  table {
-    margin: 0 auto 14px;
-    border-collapse: collapse;
-    font-size: 14px;
-  }
+th, td {
+  border: 1px solid #555;
+  padding: 6px 12px;
+  text-align: center;
+}
 
-  th, td {
-    border: 1px solid #555;
-    padding: 6px 12px;
-    text-align: center;
-  }
+th {
+  background: #222;
+}
 
-  th {
-    background:#222;
-  }
-
-  .highlight {
-    background:#1e90ff;
-    color:#000;
-  }
+.highlight {
+  background: #1e90ff;
+  color: #000;
+}
 </style>
 </head>
 
@@ -108,7 +134,7 @@
 
 <div class="app">
 
-  <!-- ================= Visualization ================= -->
+  <!-- ================= FSM Visualization ================= -->
   <div class="viz">
     <div class="title">FSM Visualizer — Transition Table Driven</div>
 
