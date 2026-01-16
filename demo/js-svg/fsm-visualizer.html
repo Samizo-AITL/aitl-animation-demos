@@ -10,7 +10,7 @@
 ===================================================== */
 html, body {
   width: 100%;
-  height: 100vh;          /* ★ 100% は使わない */
+  height: 100vh;
   margin: 0;
   overflow: hidden;
   background: #111;
@@ -25,7 +25,7 @@ html, body {
   width: 100vw;
   height: 100vh;
   display: grid;
-  grid-template-rows: 2.2fr 1fr;  /* FSM is the hero */
+  grid-template-rows: 2.2fr 1fr;
 }
 
 /* =====================================================
@@ -33,9 +33,10 @@ html, body {
 ===================================================== */
 .viz {
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  grid-template-rows: auto 1fr auto; /* ★ これが正解 */
   justify-items: center;
   align-items: center;
+  padding-bottom: 8px;
 }
 
 .title {
@@ -44,10 +45,11 @@ html, body {
   font-weight: 600;
 }
 
-/* SVG must fill available space */
+/* SVG: 高さを支配させない */
 svg {
   width: 100%;
-  height: 100%;
+  max-width: 900px;
+  height: auto;          /* ★ 100% 禁止 */
   display: block;
 }
 
@@ -72,7 +74,7 @@ svg {
 
 /* Controls */
 .controls {
-  margin-bottom: 14px;
+  margin: 8px 0 6px;
 }
 button {
   margin: 0 6px;
@@ -191,65 +193,35 @@ th {
 </div>
 
 <script>
-console.log("FSM visualizer loaded");
-
 /* =====================================
-   FSM definition
+   FSM logic (unchanged)
 ===================================== */
 const FSM = {
-  IDLE: {
-    START: "RUN",
-    RESET: "IDLE"
-  },
-  RUN: {
-    STOP: "IDLE",
-    RESET: "IDLE"
-  }
+  IDLE: { START: "RUN", RESET: "IDLE" },
+  RUN:  { STOP: "IDLE", RESET: "IDLE" }
 };
 
 let currentState = "IDLE";
 
-/* SVG coordinates (viewBox based) */
-const POS = {
-  IDLE_X: 200,
-  RUN_X: 400,
-  Y: 180
-};
-
+const POS = { IDLE_X: 200, RUN_X: 400, Y: 180 };
 const SPEED = 5;
 const INTERVAL = 20;
 
-/* =====================================
-   DOM ready
-===================================== */
 window.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll("button[data-event]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      dispatch(btn.dataset.event);
-    });
+    btn.addEventListener("click", () => dispatch(btn.dataset.event));
   });
 });
 
-/* =====================================
-   FSM dispatcher
-===================================== */
 function dispatch(event) {
   clearHighlight();
-
   const next = FSM[currentState]?.[event];
-  if (!next) {
-    rejectEvent();
-    return;
-  }
-
+  if (!next) return rejectEvent();
   highlightTable(currentState, event);
   animateEvent(next);
 }
 
-/* =====================================
-   Animation
-===================================== */
-function animateEvent(nextState) {
+function animateEvent(next) {
   const e = document.getElementById("event");
   e.setAttribute("visibility", "visible");
   e.setAttribute("fill", "#ffcc00");
@@ -257,14 +229,13 @@ function animateEvent(nextState) {
   e.setAttribute("cy", POS.Y);
 
   let x = POS.IDLE_X;
-  const timer = setInterval(() => {
+  const t = setInterval(() => {
     x += SPEED;
     e.setAttribute("cx", x);
-
     if (x >= POS.RUN_X) {
-      clearInterval(timer);
+      clearInterval(t);
       e.setAttribute("visibility", "hidden");
-      transitionTo(nextState);
+      transitionTo(next);
     }
   }, INTERVAL);
 }
@@ -273,28 +244,15 @@ function transitionTo(next) {
   document.getElementById(currentState).classList.remove("active");
   document.getElementById(next).classList.add("active");
   currentState = next;
-  console.log("FSM state =", currentState);
 }
 
-/* =====================================
-   Reject visualization
-===================================== */
 function rejectEvent() {
   const e = document.getElementById("event");
   e.setAttribute("visibility", "visible");
   e.setAttribute("fill", "#ff4444");
-
-  setTimeout(() => {
-    e.setAttribute("visibility", "hidden");
-    e.setAttribute("fill", "#ffcc00");
-  }, 300);
-
-  console.log("Rejected event in state:", currentState);
+  setTimeout(() => e.setAttribute("visibility", "hidden"), 300);
 }
 
-/* =====================================
-   Table highlight
-===================================== */
 function clearHighlight() {
   document.querySelectorAll(".highlight")
     .forEach(td => td.classList.remove("highlight"));
@@ -304,13 +262,10 @@ function highlightTable(state, event) {
   const table = document.getElementById("fsmTable");
   const rows = [...table.rows];
   const header = rows[0];
-  const stateRow = rows.find(r => r.cells[0]?.innerText === state);
-  if (!stateRow) return;
-
+  const row = rows.find(r => r.cells[0]?.innerText === state);
+  if (!row) return;
   const col = [...header.cells].findIndex(h => h.innerText === event);
-  if (col > 0) {
-    stateRow.cells[col].classList.add("highlight");
-  }
+  if (col > 0) row.cells[col].classList.add("highlight");
 }
 </script>
 
