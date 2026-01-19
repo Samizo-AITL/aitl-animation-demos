@@ -3,6 +3,8 @@
 This page provides quick access to **experimental animation demos** related to **AITL (Architecture for Integrated Technology Logic)** concepts.  
 Each demo is **self-contained** and can be viewed directly in the browser without additional setup. 🚀
 
+[![Back to Portal (EN)](https://img.shields.io/badge/Back%20to%20Portal-0B5FFF?style=for-the-badge&logo=homeassistant&logoColor=white)](https://samizo-aitl.github.io/portal/en/)
+
 ---
 
 ## 🔗 Links
