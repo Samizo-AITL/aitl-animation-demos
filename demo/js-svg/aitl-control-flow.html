@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>AITL Control Flow Demo — PID × FSM × NN × RL × LLM</title>
+<title>AITL Demo (2-tier) — PID only breaks / AITL recovers</title>
 
 <style>
 :root{
@@ -14,7 +14,8 @@
   --shadow:0 20px 60px rgba(0,0,0,.55);
 
   --set:#94a3b8;
-  --resp:#38bdf8;
+  --pid:#38bdf8;
+  --aitl:#22c55e;
   --dist:#ef444433;
 }
 
@@ -25,27 +26,23 @@ html,body{
   color:#e5e7eb;
   font-family:ui-monospace, Menlo, Consolas, monospace;
 }
-
 .wrap{
   max-width:1100px;
   margin:auto;
   padding:14px;
   background:var(--bg);
 }
-
 h1{
   font-size:13px;
   letter-spacing:.14em;
   color:#cbd5e1;
-  margin-bottom:14px;
+  margin:6px 0 14px;
 }
-
-.panel{
+.grid{
   display:grid;
-  grid-template-columns:320px 1fr;
-  gap:18px;
+  grid-template-columns:1fr;
+  gap:14px;
 }
-
 .card{
   background:linear-gradient(180deg, rgba(11,18,34,.85), rgba(11,18,34,.55));
   border:1px solid rgba(148,163,184,.22);
@@ -53,67 +50,40 @@ h1{
   box-shadow:var(--shadow);
   overflow:hidden;
 }
-
-.cardHeader{
-  padding:14px;
-  border-bottom:1px solid rgba(148,163,184,.14);
+.header{
+  padding:12px 14px;
   display:flex;
-  justify-content:space-between;
   align-items:center;
+  justify-content:space-between;
+  border-bottom:1px solid rgba(148,163,184,.14);
 }
-
-.pulse{
-  width:8px;height:8px;border-radius:50%;
-  background:#38bdf8;
-  box-shadow:0 0 10px #38bdf8;
-  animation:pulse 1.2s infinite;
+.title{
+  display:flex;align-items:center;gap:10px;
+  font-size:12px;color:#e2e8f0;
 }
-@keyframes pulse{50%{opacity:.4}}
-
 .badge{
   font-size:11px;
   padding:4px 8px;
   border-radius:999px;
   border:1px solid rgba(148,163,184,.22);
+  color:var(--muted);
 }
-
-.status{padding:14px;font-size:12px;}
-.row{
-  display:flex;justify-content:space-between;
-  padding:8px 10px;margin-bottom:8px;
-  border-radius:10px;
-  background:rgba(2,6,23,.35);
-  border:1px solid rgba(148,163,184,.12);
-}
-
-.kpi{
-  margin-top:10px;
-  padding:10px;
-  border-radius:10px;
-  background:rgba(2,6,23,.35);
-  border:1px solid rgba(148,163,184,.12);
-}
-.kpi .label{font-size:11px;color:var(--muted);}
-.kpi .num{font-size:16px;margin-top:4px;}
-
-.footer{
+.sub{
   padding:10px 14px;
   font-size:11px;
   color:var(--muted);
-  border-top:1px solid rgba(148,163,184,.14);
+  border-bottom:1px solid rgba(148,163,184,.12);
+  display:flex;
+  gap:14px;
+  flex-wrap:wrap;
 }
-
-/* ==== GRAPH ==== */
-.svgWrap{
-  position:relative;
-  padding-top:42px; /* ← 注釈分の退避 */
-}
-
+.kpi{display:flex;gap:6px;align-items:center;}
+.kpi b{color:#e5e7eb;font-weight:600;}
+.svgWrap{position:relative;padding-top:36px;}
 .legend{
-  position:absolute;
-  top:8px;left:14px;
-  font-size:11px;color:var(--muted);
+  position:absolute;top:8px;left:14px;
   display:flex;gap:10px;
+  font-size:11px;color:var(--muted);
 }
 .chip{
   padding:6px 10px;border-radius:999px;
@@ -121,151 +91,213 @@ h1{
   border:1px solid rgba(148,163,184,.18);
 }
 .sw{width:10px;height:10px;border-radius:3px;display:inline-block;margin-right:6px;}
+svg{display:block;width:100%;height:240px;background:#020617;}
 </style>
 </head>
 
 <body>
 <div class="wrap">
-<h1>AITL CONTROL FLOW DEMO — PID × FSM × NN × RL × LLM</h1>
+  <h1>AITL DEMO (2-tier) — Same persistent disturbance, different outcome</h1>
 
-<div class="panel">
+  <div class="grid">
 
-<!-- STATUS -->
-<div class="card">
-  <div class="cardHeader">
-    <div style="display:flex;align-items:center;gap:8px">
-      <span class="pulse"></span>LIVE
+    <!-- ===== TOP: PID ONLY ===== -->
+    <div class="card">
+      <div class="header">
+        <div class="title">
+          <span style="width:10px;height:10px;border-radius:50%;background:var(--pid);box-shadow:0 0 10px var(--pid)"></span>
+          PID ONLY (No FSM)
+        </div>
+        <span class="badge">fails: cannot remove steady-state error</span>
+      </div>
+      <div class="sub">
+        <div class="kpi">Disturbance: <b>persistent load</b></div>
+        <div class="kpi">Outcome: <b>does not return to setpoint</b></div>
+      </div>
+
+      <div class="svgWrap">
+        <div class="legend">
+          <div class="chip"><span class="sw" style="background:var(--set)"></span>Setpoint</div>
+          <div class="chip"><span class="sw" style="background:var(--pid)"></span>Response</div>
+          <div class="chip"><span class="sw" style="background:#ef4444"></span>Disturbance</div>
+        </div>
+
+        <svg viewBox="0 0 860 260">
+          <defs>
+            <pattern id="gridA" width="40" height="40" patternUnits="userSpaceOnUse">
+              <path d="M40 0 L0 0 0 40" stroke="rgba(31,42,68,.8)" fill="none"/>
+            </pattern>
+          </defs>
+
+          <rect width="860" height="260" fill="url(#gridA)"/>
+          <rect x="40" y="20" width="800" height="200" rx="10"
+                fill="rgba(2,6,23,.35)" stroke="rgba(148,163,184,.22)"/>
+
+          <rect id="distTop" y="20" height="200" fill="var(--dist)" visibility="hidden"/>
+
+          <path id="setTop" stroke="#94a3b8" stroke-dasharray="6 6" fill="none"/>
+          <path id="respTop" stroke="#38bdf8" stroke-width="3" fill="none"/>
+        </svg>
+      </div>
     </div>
-    <span class="badge">FSM is the sole decision authority</span>
-  </div>
 
-  <div class="status">
-    <div class="row"><span>FSM State</span><span id="fsm">NORMAL</span></div>
-    <div class="row"><span>PID</span><span id="pid">tracking</span></div>
-    <div class="row"><span>NN</span><span id="nn">idle</span></div>
-    <div class="row"><span>RL</span><span id="rl">idle</span></div>
-    <div class="row"><span>LLM</span><span id="llm">idle</span></div>
+    <!-- ===== BOTTOM: AITL ===== -->
+    <div class="card">
+      <div class="header">
+        <div class="title">
+          <span style="width:10px;height:10px;border-radius:50%;background:var(--aitl);box-shadow:0 0 10px var(--aitl)"></span>
+          AITL (PID + FSM supervision)
+        </div>
+        <span class="badge">recovers: FSM authorizes bias cancellation</span>
+      </div>
+      <div class="sub">
+        <div class="kpi">Disturbance: <b>same persistent load</b></div>
+        <div class="kpi">FSM trigger: <b>|e| &gt; 0.20 for a while</b></div>
+        <div class="kpi">Outcome: <b>returns to setpoint</b></div>
+      </div>
 
-    <div class="kpi">
-      <div class="label">Normalized error |e| (FSM trigger: |e| &gt; 0.25)</div>
-      <div class="num" id="err">0.00</div>
+      <div class="svgWrap">
+        <div class="legend">
+          <div class="chip"><span class="sw" style="background:var(--set)"></span>Setpoint</div>
+          <div class="chip"><span class="sw" style="background:var(--aitl)"></span>Response</div>
+          <div class="chip"><span class="sw" style="background:#ef4444"></span>Disturbance</div>
+        </div>
+
+        <svg viewBox="0 0 860 260">
+          <defs>
+            <pattern id="gridB" width="40" height="40" patternUnits="userSpaceOnUse">
+              <path d="M40 0 L0 0 0 40" stroke="rgba(31,42,68,.8)" fill="none"/>
+            </pattern>
+          </defs>
+
+          <rect width="860" height="260" fill="url(#gridB)"/>
+          <rect x="40" y="20" width="800" height="200" rx="10"
+                fill="rgba(2,6,23,.35)" stroke="rgba(148,163,184,.22)"/>
+
+          <rect id="distBot" y="20" height="200" fill="var(--dist)" visibility="hidden"/>
+
+          <path id="setBot" stroke="#94a3b8" stroke-dasharray="6 6" fill="none"/>
+          <path id="respBot" stroke="#22c55e" stroke-width="3" fill="none"/>
+        </svg>
+      </div>
     </div>
+
   </div>
-
-  <div class="footer">
-    NN / RL propose only. FSM evaluates and authorizes.  
-    LLM is invoked only when control logic must be reconsidered.
-  </div>
-</div>
-
-<!-- GRAPH -->
-<div class="card svgWrap">
-  <div class="legend">
-    <div class="chip"><span class="sw" style="background:var(--set)"></span>Setpoint</div>
-    <div class="chip"><span class="sw" style="background:var(--resp)"></span>Response</div>
-    <div class="chip"><span class="sw" style="background:#ef4444"></span>Disturbance</div>
-  </div>
-
-  <svg viewBox="0 0 860 300">
-    <defs>
-      <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-        <path d="M40 0 L0 0 0 40" stroke="rgba(31,42,68,.8)" fill="none"/>
-      </pattern>
-    </defs>
-
-    <rect width="860" height="300" fill="url(#grid)"/>
-    <rect x="40" y="20" width="800" height="240" rx="10"
-          fill="rgba(2,6,23,.35)" stroke="rgba(148,163,184,.22)"/>
-
-    <!-- disturbance band -->
-    <rect id="dist" y="20" height="240" fill="var(--dist)" visibility="hidden"/>
-
-    <path id="setPath" stroke="#94a3b8" stroke-dasharray="6 6" fill="none"/>
-    <path id="pidPath" stroke="#38bdf8" stroke-width="3" fill="none"/>
-  </svg>
-</div>
-
-</div>
 </div>
 
 <script>
-/* ==== parameters ==== */
-const N=260;
+/* ===== Common plotting helpers ===== */
+const X0=40, Y0=20, W=800, H=200;
+const N=280;
 const SET=1.0;
-const DIST_START=90, DIST_END=150;
 
-const X0=40,Y0=20,W=800,H=240;
+// disturbance: persistent step (starts and stays)
+const DIST_START=80;
+const DIST_BIAS=0.28; // visible constant offset
 
-/* ==== DOM ==== */
-const fsmEl=document.getElementById("fsm");
-const pidEl=document.getElementById("pid");
-const nnEl=document.getElementById("nn");
-const rlEl=document.getElementById("rl");
-const llmEl=document.getElementById("llm");
-const errEl=document.getElementById("err");
-
-const pidPath=document.getElementById("pidPath");
-const setPath=document.getElementById("setPath");
-const distEl=document.getElementById("dist");
-
-/* ==== state ==== */
-let i=0;
-let y=0;              // ← 状態変数（重要）
-let Kp=0.9;
-let fsmState="NORMAL";
-
-const px=[], sx=[];
 const X=i=>X0+(i/(N-1))*W;
 const Y=v=>Y0+H-(v*H);
+const clamp=v=>Math.max(0,Math.min(1.05,v));
 const path=(p,n)=>n<2?"":"M "+p.slice(0,n).map(q=>q.x+" "+q.y).join(" L ");
 
+/* ===== TOP: PID ONLY (will not remove steady-state error) =====
+   We intentionally model a "P-only-like" controller:
+   y_{k+1} = y_k + a*(Kp*(SET - y_k) - bias)
+   With constant bias, steady-state error remains.
+*/
+const setTop=document.getElementById("setTop");
+const respTop=document.getElementById("respTop");
+const distTop=document.getElementById("distTop");
+
+/* ===== BOTTOM: AITL (FSM allows bias cancellation) =====
+   Same plant, but FSM can authorize a bias-cancel term u_bias
+   after error stays large long enough.
+*/
+const setBot=document.getElementById("setBot");
+const respBot=document.getElementById("respBot");
+const distBot=document.getElementById("distBot");
+
+/* ===== Simulation state ===== */
+let i=0;
+
+// PID-only (P-only) state
+let yTop=0;
+const KpTop=1.0;
+const aTop=0.10;
+
+// AITL state
+let yBot=0;
+let KpBot=1.0;
+const aBot=0.10;
+let fsm="NORMAL";
+let uBias=0.0;
+let overCount=0;
+
+const pTop=[], sTop=[];
+const pBot=[], sBot=[];
+
+/* Draw disturbance band (persistent from DIST_START to end) */
+function showDistBands(){
+  const xStart=X(DIST_START);
+  const width=(X(N-1)-xStart);
+  [distTop, distBot].forEach(el=>{
+    el.setAttribute("x", xStart);
+    el.setAttribute("width", width);
+    el.setAttribute("visibility","visible");
+  });
+}
+showDistBands();
+
 function step(){
-  const disturbed=(i>DIST_START && i<DIST_END);
+  const disturbed = (i >= DIST_START);
+  const bias = disturbed ? DIST_BIAS : 0.0;
 
-  /* ---- plant + PID-like response ---- */
-  const dy = Kp*(SET - y);
-  const d  = disturbed ? -0.02 : 0;   // 外乱（負荷）
-  y += dy*0.12 + d;
+  /* ---------- TOP: PID ONLY (fails) ---------- */
+  // P-only control effort (no integral/bias cancellation)
+  const uTop = KpTop*(SET - yTop);
+  // plant update with constant bias subtracting effective actuation
+  yTop += aTop*(uTop - bias);
 
-  const e=Math.abs(SET-y);
-  errEl.textContent=e.toFixed(2);
+  /* ---------- BOTTOM: AITL (recovers) ---------- */
+  // FSM monitors error persistence
+  const eBot = Math.abs(SET - yBot);
+  if(disturbed && eBot > 0.20) overCount++;
+  else overCount = Math.max(0, overCount-1);
 
-  /* ---- FSM ---- */
-  if(disturbed && fsmState==="NORMAL"){
-    fsmState="DISTURBANCE_DETECTED";
-    distEl.setAttribute("x",X(DIST_START));
-    distEl.setAttribute("width",X(DIST_END)-X(DIST_START));
-    distEl.setAttribute("visibility","visible");
+  // FSM decision: authorize bias cancellation after persistence
+  if(fsm==="NORMAL" && overCount > 18){
+    fsm="BIAS_CANCEL_AUTHORIZED";
+    // "proposal" accepted: apply bias cancel
+    uBias = bias;     // simple cancellation (super clear for demo)
+    KpBot = 1.0;
   }
 
-  if(fsmState==="DISTURBANCE_DETECTED" && e>0.25){
-    fsmState="SAFE_CONTROL";
-    Kp=2.0;
-    nnEl.textContent="proposal: gain up";
-    rlEl.textContent="accepted";
-  }
+  // AITL control effort: P control + authorized bias cancel
+  const uBot = KpBot*(SET - yBot) + uBias;
+  yBot += aBot*(uBot - bias);
 
-  if(!disturbed && fsmState==="SAFE_CONTROL" && e<0.08){
-    fsmState="NORMAL";
-    Kp=0.9;
-    nnEl.textContent="idle";
-    rlEl.textContent="idle";
-    distEl.setAttribute("visibility","hidden");
-  }
+  // Optional: if disturbance never ends, keep authorized mode; if you later
+  // add disturbance end, you can return to NORMAL by resetting uBias to 0.
 
-  fsmEl.textContent=fsmState;
-  pidEl.textContent=(fsmState==="NORMAL")?"tracking":"adjusting";
+  /* ---------- Plot ---------- */
+  sTop[i]={x:X(i),y:Y(SET)};
+  pTop[i]={x:X(i),y:Y(clamp(yTop))};
+  setTop.setAttribute("d", path(sTop, i+1));
+  respTop.setAttribute("d", path(pTop, i+1));
 
-  /* ---- plot ---- */
-  px[i]={x:X(i),y:Y(Math.max(0,Math.min(1.05,y)))};
-  sx[i]={x:X(i),y:Y(SET)};
-  pidPath.setAttribute("d",path(px,i+1));
-  setPath.setAttribute("d",path(sx,i+1));
+  sBot[i]={x:X(i),y:Y(SET)};
+  pBot[i]={x:X(i),y:Y(clamp(yBot))};
+  setBot.setAttribute("d", path(sBot, i+1));
+  respBot.setAttribute("d", path(pBot, i+1));
 
   i++;
   if(i>=N){
-    i=0; y=0; Kp=0.9; fsmState="NORMAL";
-    px.length=0; sx.length=0;
+    i=0;
+    // reset
+    yTop=0; yBot=0;
+    fsm="NORMAL"; uBias=0; overCount=0;
+    pTop.length=0; sTop.length=0;
+    pBot.length=0; sBot.length=0;
   }
   requestAnimationFrame(step);
 }
