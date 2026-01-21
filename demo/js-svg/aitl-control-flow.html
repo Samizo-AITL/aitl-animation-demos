@@ -9,7 +9,6 @@
 :root{
   --bg:#020617;
   --panel:#0b1222cc;
-  --stroke:#38bdf8;
   --muted:#94a3b8;
   --grid:#1f2a44;
   --shadow:0 20px 60px rgba(0,0,0,.55);
@@ -104,10 +103,15 @@ h1{
   border-top:1px solid rgba(148,163,184,.14);
 }
 
-.svgWrap{position:relative;}
+/* ==== GRAPH ==== */
+.svgWrap{
+  position:relative;
+  padding-top:42px; /* ← 注釈分の退避 */
+}
+
 .legend{
   position:absolute;
-  top:12px;left:14px;
+  top:8px;left:14px;
   font-size:11px;color:var(--muted);
   display:flex;gap:10px;
 }
@@ -173,7 +177,7 @@ h1{
     <rect x="40" y="20" width="800" height="240" rx="10"
           fill="rgba(2,6,23,.35)" stroke="rgba(148,163,184,.22)"/>
 
-    <!-- disturbance -->
+    <!-- disturbance band -->
     <rect id="dist" y="20" height="240" fill="var(--dist)" visibility="hidden"/>
 
     <path id="setPath" stroke="#94a3b8" stroke-dasharray="6 6" fill="none"/>
@@ -185,11 +189,15 @@ h1{
 </div>
 
 <script>
-const N=240, SET=1.0;
-const X0=40,Y0=20,W=800,H=240;
-const DIST_START=70, DIST_END=120;
+/* ==== parameters ==== */
+const N=260;
+const SET=1.0;
+const DIST_START=90, DIST_END=150;
 
-const fsmEl=fsm=document.getElementById("fsm");
+const X0=40,Y0=20,W=800,H=240;
+
+/* ==== DOM ==== */
+const fsmEl=document.getElementById("fsm");
 const pidEl=document.getElementById("pid");
 const nnEl=document.getElementById("nn");
 const rlEl=document.getElementById("rl");
@@ -200,52 +208,65 @@ const pidPath=document.getElementById("pidPath");
 const setPath=document.getElementById("setPath");
 const distEl=document.getElementById("dist");
 
-let i=0, Kp=0.9, fsmState="NORMAL";
+/* ==== state ==== */
+let i=0;
+let y=0;              // ← 状態変数（重要）
+let Kp=0.9;
+let fsmState="NORMAL";
+
 const px=[], sx=[];
 const X=i=>X0+(i/(N-1))*W;
 const Y=v=>Y0+H-(v*H);
 const path=(p,n)=>n<2?"":"M "+p.slice(0,n).map(q=>q.x+" "+q.y).join(" L ");
 
 function step(){
-  let y=SET*(1-Math.exp(-Kp*i/18));
   const disturbed=(i>DIST_START && i<DIST_END);
-  if(disturbed) y-=0.32;
+
+  /* ---- plant + PID-like response ---- */
+  const dy = Kp*(SET - y);
+  const d  = disturbed ? -0.02 : 0;   // 外乱（負荷）
+  y += dy*0.12 + d;
 
   const e=Math.abs(SET-y);
   errEl.textContent=e.toFixed(2);
 
-  if(disturbed && i===DIST_START){
+  /* ---- FSM ---- */
+  if(disturbed && fsmState==="NORMAL"){
+    fsmState="DISTURBANCE_DETECTED";
     distEl.setAttribute("x",X(DIST_START));
     distEl.setAttribute("width",X(DIST_END)-X(DIST_START));
     distEl.setAttribute("visibility","visible");
-    fsmState="DISTURBANCE_DETECTED";
   }
 
   if(fsmState==="DISTURBANCE_DETECTED" && e>0.25){
     fsmState="SAFE_CONTROL";
+    Kp=2.0;
     nnEl.textContent="proposal: gain up";
-    rlEl.textContent="evaluating";
-    Kp=2.1;
+    rlEl.textContent="accepted";
   }
 
-  if(!disturbed && fsmState==="SAFE_CONTROL" && e<0.1){
+  if(!disturbed && fsmState==="SAFE_CONTROL" && e<0.08){
     fsmState="NORMAL";
+    Kp=0.9;
     nnEl.textContent="idle";
     rlEl.textContent="idle";
     distEl.setAttribute("visibility","hidden");
-    Kp=0.9;
   }
 
   fsmEl.textContent=fsmState;
-  pidEl.textContent=fsmState==="NORMAL"?"tracking":"adjusting";
+  pidEl.textContent=(fsmState==="NORMAL")?"tracking":"adjusting";
 
+  /* ---- plot ---- */
   px[i]={x:X(i),y:Y(Math.max(0,Math.min(1.05,y)))};
   sx[i]={x:X(i),y:Y(SET)};
   pidPath.setAttribute("d",path(px,i+1));
   setPath.setAttribute("d",path(sx,i+1));
 
   i++;
-  if(i>=N){i=0;px.length=0;sx.length=0;fsmState="NORMAL";}
+  if(i>=N){
+    i=0; y=0; Kp=0.9; fsmState="NORMAL";
+    px.length=0; sx.length=0;
+  }
   requestAnimationFrame(step);
 }
 step();
