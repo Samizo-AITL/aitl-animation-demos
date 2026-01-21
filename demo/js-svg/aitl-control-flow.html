@@ -14,20 +14,14 @@
   --grid:#1f2a44;
   --shadow:0 20px 60px rgba(0,0,0,.55);
 
-  --ok:#22c55e;
-  --warn:#f59e0b;
-  --bad:#ef4444;
-
   --set:#94a3b8;
   --resp:#38bdf8;
-  --cand:#a78bfa;
-  --act:#22c55e;
+  --dist:#ef444433;
 }
 
 *{box-sizing:border-box;}
-html, body{
+html,body{
   margin:0;
-  padding:0;
   background:#000;
   color:#e5e7eb;
   font-family:ui-monospace, Menlo, Consolas, monospace;
@@ -35,20 +29,16 @@ html, body{
 
 .wrap{
   max-width:1100px;
-  margin:0 auto;
+  margin:auto;
   padding:14px;
-  background:
-    radial-gradient(1200px 700px at 50% -10%, rgba(56,189,248,.12), transparent 55%),
-    radial-gradient(900px 600px at 15% 10%, rgba(34,197,94,.08), transparent 55%),
-    radial-gradient(900px 600px at 85% 20%, rgba(239,68,68,.07), transparent 55%),
-    var(--bg);
+  background:var(--bg);
 }
 
 h1{
-  font-size:13.5px;
+  font-size:13px;
   letter-spacing:.14em;
-  margin:6px 0 14px;
   color:#cbd5e1;
+  margin-bottom:14px;
 }
 
 .panel{
@@ -73,80 +63,60 @@ h1{
   align-items:center;
 }
 
-.pulseDot{
+.pulse{
   width:8px;height:8px;border-radius:50%;
   background:#38bdf8;
-  box-shadow:0 0 12px #38bdf8;
+  box-shadow:0 0 10px #38bdf8;
   animation:pulse 1.2s infinite;
-  margin-right:8px;
 }
-@keyframes pulse{0%,100%{opacity:.9;}50%{opacity:.4;}}
+@keyframes pulse{50%{opacity:.4}}
 
 .badge{
   font-size:11px;
   padding:4px 8px;
   border-radius:999px;
   border:1px solid rgba(148,163,184,.22);
-  background:rgba(2,6,23,.25);
 }
 
-.status{padding:14px;font-size:12.5px;}
-
+.status{padding:14px;font-size:12px;}
 .row{
-  display:flex;
-  justify-content:space-between;
-  padding:8px 10px;
-  margin-bottom:8px;
+  display:flex;justify-content:space-between;
+  padding:8px 10px;margin-bottom:8px;
   border-radius:10px;
-  border:1px solid rgba(148,163,184,.12);
   background:rgba(2,6,23,.35);
+  border:1px solid rgba(148,163,184,.12);
 }
 
 .kpi{
   margin-top:10px;
   padding:10px;
   border-radius:10px;
-  border:1px solid rgba(148,163,184,.12);
   background:rgba(2,6,23,.35);
+  border:1px solid rgba(148,163,184,.12);
 }
 .kpi .label{font-size:11px;color:var(--muted);}
 .kpi .num{font-size:16px;margin-top:4px;}
 
-.footerNote{
+.footer{
   padding:10px 14px;
-  border-top:1px solid rgba(148,163,184,.14);
   font-size:11px;
   color:var(--muted);
-  line-height:1.5;
+  border-top:1px solid rgba(148,163,184,.14);
 }
 
-/* ===== SVG ===== */
 .svgWrap{position:relative;}
-svg{
-  display:block;
-  width:100%;
-  height:340px;
-  background:#020617;
-}
-
 .legend{
   position:absolute;
   top:12px;left:14px;
-  font-size:11px;
-  color:var(--muted);
-  display:flex;
-  gap:10px;
+  font-size:11px;color:var(--muted);
+  display:flex;gap:10px;
 }
 .chip{
-  display:flex;align-items:center;gap:6px;
-  padding:6px 10px;
-  border-radius:999px;
-  border:1px solid rgba(148,163,184,.18);
+  padding:6px 10px;border-radius:999px;
   background:rgba(2,6,23,.35);
+  border:1px solid rgba(148,163,184,.18);
 }
-.swatch{width:10px;height:10px;border-radius:3px;}
-.sw1{background:var(--set);}
-.sw2{background:var(--resp);}
+.sw{width:10px;height:10px;border-radius:3px;display:inline-block;margin-right:6px;}
 </style>
 </head>
 
@@ -156,10 +126,11 @@ svg{
 
 <div class="panel">
 
+<!-- STATUS -->
 <div class="card">
   <div class="cardHeader">
-    <div style="display:flex;align-items:center;">
-      <span class="pulseDot"></span>LIVE
+    <div style="display:flex;align-items:center;gap:8px">
+      <span class="pulse"></span>LIVE
     </div>
     <span class="badge">FSM is the sole decision authority</span>
   </div>
@@ -172,22 +143,23 @@ svg{
     <div class="row"><span>LLM</span><span id="llm">idle</span></div>
 
     <div class="kpi">
-      <div class="label">Normalized error |e|</div>
+      <div class="label">Normalized error |e| (FSM trigger: |e| &gt; 0.25)</div>
       <div class="num" id="err">0.00</div>
     </div>
   </div>
 
-  <div class="footerNote">
-    NN and RL generate proposals only.  
-    FSM evaluates and authorizes.  
-    LLM is invoked only when the control logic itself must be reconsidered.
+  <div class="footer">
+    NN / RL propose only. FSM evaluates and authorizes.  
+    LLM is invoked only when control logic must be reconsidered.
   </div>
 </div>
 
+<!-- GRAPH -->
 <div class="card svgWrap">
   <div class="legend">
-    <div class="chip"><span class="swatch sw1"></span>Setpoint</div>
-    <div class="chip"><span class="swatch sw2"></span>Response</div>
+    <div class="chip"><span class="sw" style="background:var(--set)"></span>Setpoint</div>
+    <div class="chip"><span class="sw" style="background:var(--resp)"></span>Response</div>
+    <div class="chip"><span class="sw" style="background:#ef4444"></span>Disturbance</div>
   </div>
 
   <svg viewBox="0 0 860 300">
@@ -201,6 +173,9 @@ svg{
     <rect x="40" y="20" width="800" height="240" rx="10"
           fill="rgba(2,6,23,.35)" stroke="rgba(148,163,184,.22)"/>
 
+    <!-- disturbance -->
+    <rect id="dist" y="20" height="240" fill="var(--dist)" visibility="hidden"/>
+
     <path id="setPath" stroke="#94a3b8" stroke-dasharray="6 6" fill="none"/>
     <path id="pidPath" stroke="#38bdf8" stroke-width="3" fill="none"/>
   </svg>
@@ -212,8 +187,9 @@ svg{
 <script>
 const N=240, SET=1.0;
 const X0=40,Y0=20,W=800,H=240;
+const DIST_START=70, DIST_END=120;
 
-const fsmEl=document.getElementById("fsm");
+const fsmEl=fsm=document.getElementById("fsm");
 const pidEl=document.getElementById("pid");
 const nnEl=document.getElementById("nn");
 const rlEl=document.getElementById("rl");
@@ -222,60 +198,54 @@ const errEl=document.getElementById("err");
 
 const pidPath=document.getElementById("pidPath");
 const setPath=document.getElementById("setPath");
+const distEl=document.getElementById("dist");
 
-let i=0;
-let Kp=0.9;
-let fsm="NORMAL";
-
+let i=0, Kp=0.9, fsmState="NORMAL";
 const px=[], sx=[];
 const X=i=>X0+(i/(N-1))*W;
 const Y=v=>Y0+H-(v*H);
-
-function path(p,n){
-  if(n<2) return "";
-  return "M "+p.slice(0,n).map(q=>q.x+" "+q.y).join(" L ");
-}
+const path=(p,n)=>n<2?"":"M "+p.slice(0,n).map(q=>q.x+" "+q.y).join(" L ");
 
 function step(){
   let y=SET*(1-Math.exp(-Kp*i/18));
-  if(i>70&&i<120) y-=0.32;
+  const disturbed=(i>DIST_START && i<DIST_END);
+  if(disturbed) y-=0.32;
 
   const e=Math.abs(SET-y);
   errEl.textContent=e.toFixed(2);
 
-  if(e>0.22 && fsm==="NORMAL"){
-    fsm="DEGRADED";
-    nnEl.textContent="proposing";
-    rlEl.textContent="selecting";
+  if(disturbed && i===DIST_START){
+    distEl.setAttribute("x",X(DIST_START));
+    distEl.setAttribute("width",X(DIST_END)-X(DIST_START));
+    distEl.setAttribute("visibility","visible");
+    fsmState="DISTURBANCE_DETECTED";
   }
 
-  if(fsm==="DEGRADED" && i===150){
+  if(fsmState==="DISTURBANCE_DETECTED" && e>0.25){
+    fsmState="SAFE_CONTROL";
+    nnEl.textContent="proposal: gain up";
+    rlEl.textContent="evaluating";
     Kp=2.1;
-    fsm="RECOVERY";
-    llmEl.textContent="proposal adopted";
   }
 
-  if(fsm==="RECOVERY" && e<0.1){
-    fsm="NORMAL";
+  if(!disturbed && fsmState==="SAFE_CONTROL" && e<0.1){
+    fsmState="NORMAL";
     nnEl.textContent="idle";
     rlEl.textContent="idle";
-    llmEl.textContent="idle";
+    distEl.setAttribute("visibility","hidden");
+    Kp=0.9;
   }
 
-  fsmEl.textContent=fsm;
-  pidEl.textContent=fsm==="NORMAL"?"tracking":"adjusting";
+  fsmEl.textContent=fsmState;
+  pidEl.textContent=fsmState==="NORMAL"?"tracking":"adjusting";
 
   px[i]={x:X(i),y:Y(Math.max(0,Math.min(1.05,y)))};
   sx[i]={x:X(i),y:Y(SET)};
-
   pidPath.setAttribute("d",path(px,i+1));
   setPath.setAttribute("d",path(sx,i+1));
 
   i++;
-  if(i>=N){
-    i=0;fsm="NORMAL";Kp=0.9;
-    px.length=0;sx.length=0;
-  }
+  if(i>=N){i=0;px.length=0;sx.length=0;fsmState="NORMAL";}
   requestAnimationFrame(step);
 }
 step();
