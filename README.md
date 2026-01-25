@@ -376,7 +376,7 @@ The animation runs **directly on this page**.
 <iframe
   src="demo/js-svg/fsm-visualizer.html"
   style="
-    width:100%;
+    width:80%;
     height:100vh;
     border:none;
     display:block;
